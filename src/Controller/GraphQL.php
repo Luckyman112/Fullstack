@@ -7,68 +7,190 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Type\SchemaConfig;
-use RuntimeException;
+use PDO;
 use Throwable;
 
 class GraphQL {
     static public function handle() {
         try {
+            // Тип Category
+            $categoryType = new ObjectType([
+                'name' => 'Category',
+                'fields' => [
+                    'id' => Type::int(),
+                    'name' => Type::string(),
+                ],
+            ]);
+
+            // Тип Currency
+            $currencyType = new ObjectType([
+                'name' => 'Currency',
+                'fields' => [
+                    'symbol' => Type::string(),
+                ],
+            ]);
+
+            // Тип Price
+            $priceType = new ObjectType([
+                'name' => 'Price',
+                'fields' => [
+                    'amount' => Type::float(),
+                    'currency' => [
+                        'type' => $currencyType,
+                        'resolve' => fn($root) => ['symbol' => $root['currency_symbol']],
+                    ],
+                ],
+            ]);
+
+            // Тип Product
+            $productType = new ObjectType([
+                'name' => 'Product',
+                'fields' => [
+                    'id' => Type::string(),
+                    'name' => Type::string(),
+                    'inStock' => Type::boolean(),
+                    'description' => Type::string(),
+                    'categoryId' => Type::int(),
+                    'brand' => Type::string(),
+                    'gallery' => [
+                        'type' => Type::listOf(Type::string()),
+                        'resolve' => fn($root) => self::fetchProductGallery($root['id']),
+                    ],
+                    'prices' => [
+                        'type' => Type::listOf($priceType),
+                        'resolve' => fn($root) => self::fetchProductPrices($root['id']),
+                    ],
+                ],
+            ]);
+
+            // Query
             $queryType = new ObjectType([
                 'name' => 'Query',
                 'fields' => [
-                    'echo' => [
-                        'type' => Type::string(),
+                    'categories' => [
+                        'type' => Type::listOf($categoryType),
+                        'resolve' => fn() => self::fetchCategories(),
+                    ],
+                    'products' => [
+                        'type' => Type::listOf($productType),
+                        'resolve' => fn() => self::fetchProducts(),
+                    ],
+                    'product' => [
+                        'type' => $productType,
                         'args' => [
-                            'message' => ['type' => Type::string()],
+                            'id' => ['type' => Type::nonNull(Type::string())],
                         ],
-                        'resolve' => static fn ($rootValue, array $args): string => $rootValue['prefix'] . $args['message'],
+                        'resolve' => fn($root, $args) => self::fetchProductById($args['id']),
                     ],
                 ],
             ]);
-        
+
+            // Mutation
             $mutationType = new ObjectType([
                 'name' => 'Mutation',
                 'fields' => [
-                    'sum' => [
-                        'type' => Type::int(),
+                    'addCategory' => [
+                        'type' => Type::boolean(),
                         'args' => [
-                            'x' => ['type' => Type::int()],
-                            'y' => ['type' => Type::int()],
+                            'name' => ['type' => Type::nonNull(Type::string())],
                         ],
-                        'resolve' => static fn ($calc, array $args): int => $args['x'] + $args['y'],
+                        'resolve' => fn($root, $args) => self::addCategory($args['name']),
+                    ],
+                    'addProduct' => [
+                        'type' => Type::boolean(),
+                        'args' => [
+                            'id' => ['type' => Type::nonNull(Type::string())],
+                            'name' => ['type' => Type::nonNull(Type::string())],
+                            'inStock' => ['type' => Type::nonNull(Type::boolean())],
+                            'description' => ['type' => Type::string()],
+                            'categoryId' => ['type' => Type::nonNull(Type::int())],
+                            'brand' => ['type' => Type::string()],
+                        ],
+                        'resolve' => fn($root, $args) => self::addProduct($args),
                     ],
                 ],
             ]);
-        
-            // See docs on schema options:
-            // https://webonyx.github.io/graphql-php/schema-definition/#configuration-options
+
+            // Схема
             $schema = new Schema(
                 (new SchemaConfig())
-                ->setQuery($queryType)
-                ->setMutation($mutationType)
+                    ->setQuery($queryType)
+                    ->setMutation($mutationType)
             );
-        
+
+            // Обработка запроса
             $rawInput = file_get_contents('php://input');
-            if ($rawInput === false) {
-                throw new RuntimeException('Failed to get php://input');
-            }
-        
             $input = json_decode($rawInput, true);
-            $query = $input['query'];
+            $query = $input['query'] ?? '';
             $variableValues = $input['variables'] ?? null;
-        
-            $rootValue = ['prefix' => 'You said: '];
-            $result = GraphQLBase::executeQuery($schema, $query, $rootValue, null, $variableValues);
+
+            $result = GraphQLBase::executeQuery($schema, $query, null, null, $variableValues);
             $output = $result->toArray();
         } catch (Throwable $e) {
-            $output = [
-                'error' => [
-                    'message' => $e->getMessage(),
-                ],
-            ];
+            error_log($e->getMessage());
+            $output = ['error' => ['message' => 'Internal server error']];
         }
 
         header('Content-Type: application/json; charset=UTF-8');
-        return json_encode($output);
+        echo json_encode($output);
+    }
+
+    private static function fetchCategories() {
+        $pdo = self::getConnection();
+        $stmt = $pdo->query("SELECT * FROM categories");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    private static function fetchProducts() {
+        $pdo = self::getConnection();
+        $stmt = $pdo->query("SELECT id, name, in_stock, description FROM products");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    private static function fetchProductById($id) {
+        $pdo = self::getConnection();
+        $stmt = $pdo->prepare("SELECT * FROM products WHERE id = :id");
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    private static function fetchProductGallery($productId) {
+        $pdo = self::getConnection();
+        $stmt = $pdo->prepare("SELECT url FROM galleries WHERE product_id = :productId");
+        $stmt->bindParam(':productId', $productId);
+        $stmt->execute();
+        return array_column($stmt->fetchAll(PDO::FETCH_ASSOC), 'url');
+    }
+
+    private static function fetchProductPrices($productId) {
+        $pdo = self::getConnection();
+        $stmt = $pdo->prepare("SELECT amount, currency_symbol FROM prices WHERE product_id = :productId");
+        $stmt->bindParam(':productId', $productId);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    private static function addCategory($name) {
+        $pdo = self::getConnection();
+        $stmt = $pdo->prepare("INSERT INTO categories (name) VALUES (:name)");
+        $stmt->bindParam(':name', $name);
+        return $stmt->execute();
+    }
+
+    private static function addProduct($args) {
+        $pdo = self::getConnection();
+        $stmt = $pdo->prepare("
+            INSERT INTO products (id, name, in_stock, description, category_id, brand)
+            VALUES (:id, :name, :inStock, :description, :categoryId, :brand)
+        ");
+        $stmt->execute($args);
+        return true;
+    }
+
+    private static function getConnection() {
+        return new PDO('mysql:host=localhost;dbname=scandiweb', 'root', 'Kolobok20041', [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        ]);
     }
 }
