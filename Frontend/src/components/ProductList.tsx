@@ -1,7 +1,7 @@
-import React from 'react';
+import React from "react";
 import { gql, useQuery } from "@apollo/client";
-import ProductCard from './ProductCard';
-import '../styles/ProductList.css';
+import ProductCard from "./ProductCard";
+import "../styles/ProductList.css";
 
 const GET_PRODUCTS = gql`
   query GetProducts($category: String!) {

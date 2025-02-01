@@ -12,18 +12,18 @@ const Header: React.FC<HeaderProps> = ({ toggleCart }) => {
       <nav className="navbar">
         <ul className="nav-links">
           <li>
-            <NavLink to="/women" className={({ isActive }) => (isActive ? "active" : "")}>
-              WOMEN
+            <NavLink to="/all" className={({ isActive }) => (isActive ? "active" : "")}>
+              ALL
             </NavLink>
           </li>
           <li>
-            <NavLink to="/men" className={({ isActive }) => (isActive ? "active" : "")}>
-              MEN
+            <NavLink to="/clothes" className={({ isActive }) => (isActive ? "active" : "")}>
+              CLOTHES
             </NavLink>
           </li>
           <li>
-            <NavLink to="/kids" className={({ isActive }) => (isActive ? "active" : "")}>
-              KIDS
+            <NavLink to="/tech" className={({ isActive }) => (isActive ? "active" : "")}>
+              TECH
             </NavLink>
           </li>
         </ul>

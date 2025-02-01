@@ -143,8 +143,32 @@ class GraphQL {
 
     private static function fetchProducts() {
         $pdo = self::getConnection();
-        $stmt = $pdo->query("SELECT id, name, in_stock, description FROM products");
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt = $pdo->query("
+            SELECT p.id, p.name, p.in_stock, p.description, p.category_id, p.brand,
+                   COALESCE(NULLIF(GROUP_CONCAT(DISTINCT g.url SEPARATOR '|'), ''), '') AS gallery,
+                   COALESCE(NULLIF(GROUP_CONCAT(DISTINCT pr.currency_label, '|', pr.amount SEPARATOR ';'), ''), '') AS prices
+            FROM products p
+            LEFT JOIN galleries g ON p.id = g.product_id
+            LEFT JOIN prices pr ON p.id = pr.product_id
+            GROUP BY p.id
+        ");
+        $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($products as &$product) {
+            $product['inStock'] = isset($product['in_stock']) ? (bool)$product['in_stock'] : null;
+            unset($product['in_stock']);
+
+            $product['gallery'] = array_filter(explode('|', $product['gallery'] ?? ''));
+            $product['prices'] = array_map(function($price) {
+                $priceParts = explode('|', $price);
+                return [
+                    'currency' => ['symbol' => $priceParts[0]],
+                    'amount' => (float)$priceParts[1]
+                ];
+            }, array_filter(explode(';', $product['prices'] ?? '')));
+        }
+
+        return $products;
     }
 
     private static function fetchProductById($id) {
@@ -184,8 +208,7 @@ class GraphQL {
             INSERT INTO products (id, name, in_stock, description, category_id, brand)
             VALUES (:id, :name, :inStock, :description, :categoryId, :brand)
         ");
-        $stmt->execute($args);
-        return true;
+        return $stmt->execute($args);
     }
 
     private static function getConnection() {

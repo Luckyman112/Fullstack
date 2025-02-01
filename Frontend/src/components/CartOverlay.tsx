@@ -1,16 +1,17 @@
-import React from "react";
+import React, { useContext } from "react";
 import "../styles/CartOverlay.css";
+import { CartContext } from "../context/CartContext";
 
 interface CartOverlayProps {
   toggleCart: () => void;
 }
 
 const CartOverlay: React.FC<CartOverlayProps> = ({ toggleCart }) => {
-  const cartItems = [
-    { id: 1, name: "Running Short", price: 50, quantity: 1, size: "M", color: "Gray" },
-    { id: 2, name: "Wayfarer", price: 75, quantity: 2, size: "L", color: "Black" },
-  ];
+  const cartContext = useContext(CartContext);
 
+  if (!cartContext) return null;
+
+  const { cartItems } = cartContext;
   const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   return (
@@ -23,8 +24,6 @@ const CartOverlay: React.FC<CartOverlayProps> = ({ toggleCart }) => {
             <div className="cart-item" key={item.id}>
               <div>
                 <h3>{item.name}</h3>
-                <p>Size: {item.size}</p>
-                <p>Color: {item.color}</p>
                 <p>Price: ${item.price}</p>
               </div>
               <div className="quantity">
@@ -45,4 +44,3 @@ const CartOverlay: React.FC<CartOverlayProps> = ({ toggleCart }) => {
 };
 
 export default CartOverlay;
-

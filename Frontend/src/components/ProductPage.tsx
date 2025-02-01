@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useContext } from "react";
 import { gql, useQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
+import { CartContext } from "../context/CartContext";
 import "../styles/ProductPage.css";
 
 const GET_PRODUCT = gql`
@@ -36,11 +37,24 @@ const ProductPage: React.FC = () => {
   const { loading, error, data } = useQuery(GET_PRODUCT, {
     variables: { id },
   });
+  const cartContext = useContext(CartContext);
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
 
-  const product = data.product;
+  const product = data?.product;
+  if (!product) return <p>Product not found</p>;
+
+  const handleAddToCart = () => {
+    if (cartContext) {
+      cartContext.addToCart({
+        id: product.id,
+        name: product.name,
+        price: product.prices[0]?.amount || 0,
+        quantity: 1,
+      });
+    }
+  };
 
   return (
     <div className="product-page">
@@ -51,23 +65,12 @@ const ProductPage: React.FC = () => {
       </div>
       <div className="product-details">
         <h1>{product.name}</h1>
-        <p>Price: {product.prices[0].currency.symbol}{product.prices[0].amount}</p>
-        <div className="attributes">
-          {product.attributes.map((attr: any) => (
-            <div key={attr.id}>
-              <h3>{attr.name}</h3>
-              {attr.items.map((item: any) => (
-                <button key={item.id}>{item.displayValue}</button>
-              ))}
-            </div>
-          ))}
-        </div>
-        <button className="add-to-cart">ADD TO CART</button>
-        <p>{product.description}</p>
+        <p>Price: {product.prices[0]?.currency.symbol}{product.prices[0]?.amount}</p>
+        <button className="add-to-cart" onClick={handleAddToCart}>ADD TO CART</button>
+        <p dangerouslySetInnerHTML={{ __html: product.description }} />
       </div>
     </div>
   );
 };
 
 export default ProductPage;
-
