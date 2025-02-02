@@ -8,10 +8,10 @@ interface CartOverlayProps {
 
 const CartOverlay: React.FC<CartOverlayProps> = ({ toggleCart }) => {
   const cartContext = useContext(CartContext);
-
   if (!cartContext) return null;
 
-  const { cartItems } = cartContext;
+  const { cartItems, updateQuantity } = cartContext;
+
   const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   return (
@@ -27,15 +27,24 @@ const CartOverlay: React.FC<CartOverlayProps> = ({ toggleCart }) => {
                 <p>Price: ${item.price}</p>
               </div>
               <div className="quantity">
-                <button>-</button>
+                <button
+                  onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                >
+                  -
+                </button>
                 <span>{item.quantity}</span>
-                <button>+</button>
+                <button
+                  onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                >
+                  +
+                </button>
               </div>
             </div>
           ))}
         </div>
+
         <div className="cart-total">
-          <p>Total: ${total}</p>
+          <p>Total: ${total.toFixed(2)}</p>
           <button className="place-order">PLACE ORDER</button>
         </div>
       </div>
@@ -44,3 +53,4 @@ const CartOverlay: React.FC<CartOverlayProps> = ({ toggleCart }) => {
 };
 
 export default CartOverlay;
+

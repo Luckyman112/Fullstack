@@ -20,19 +20,26 @@ const GET_PRODUCTS = gql`
   }
 `;
 
-
-
 const ProductList: React.FC<{ category: string }> = ({ category }) => {
-  const { loading, error, data } = useQuery(GET_PRODUCTS, {
-    variables: { category },
-  });
+  const { loading, error, data } = useQuery(GET_PRODUCTS);
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
 
+  // Защита, если data или data.products не пришли
+  if (!data || !data.products) {
+    return <p>No products found.</p>;
+  }
+
+  // Фильтруем, если category != "all" (при условии, что в бэкенде у нас есть поле category)
+  let filtered = data.products;
+  if (category !== "all") {
+    filtered = data.products.filter((p: any) => p.category === category);
+  }
+
   return (
     <div className="product-grid">
-      {data.category.products.map((product: any) => (
+      {filtered.map((product: any) => (
         <ProductCard key={product.id} product={product} />
       ))}
     </div>
@@ -40,3 +47,4 @@ const ProductList: React.FC<{ category: string }> = ({ category }) => {
 };
 
 export default ProductList;
+

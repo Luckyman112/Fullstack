@@ -29,15 +29,24 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setCartItems((prev) => {
       const existingItem = prev.find((i) => i.id === item.id);
       if (existingItem) {
-        return prev.map((i) => (i.id === item.id ? { ...i, quantity: i.quantity + item.quantity } : i));
+        return prev.map((i) =>
+          i.id === item.id
+            ? { ...i, quantity: i.quantity + item.quantity }
+            : i
+        );
       }
       return [...prev, item];
     });
   };
 
+  // Если quantity < 1, можно либо поставить 1, либо удалять товар.
   const updateQuantity = (id: string, quantity: number) => {
     setCartItems((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, quantity: Math.max(1, quantity) } : item))
+      prev.map((item) =>
+        item.id === id
+          ? { ...item, quantity: Math.max(1, quantity) }
+          : item
+      )
     );
   };
 
@@ -46,7 +55,9 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   return (
-    <CartContext.Provider value={{ cartItems, currency, addToCart, updateQuantity, isCartOpen, toggleCart }}>
+    <CartContext.Provider
+      value={{ cartItems, currency, addToCart, updateQuantity, isCartOpen, toggleCart }}
+    >
       {children}
     </CartContext.Provider>
   );

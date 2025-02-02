@@ -4,9 +4,8 @@ import { ApolloProvider, InMemoryCache, ApolloClient } from "@apollo/client";
 import App from "./App";
 import "./styles/App.css";
 
-// Создаем Apollo Client
 const client = new ApolloClient({
-  uri: "http://localhost:8000/graphql", // Убедись, что сервер запущен и этот URL правильный
+  uri: "http://localhost:8000/graphql", // Или http://localhost:8080/index.php, если так у тебя бекенд
   cache: new InMemoryCache(),
 });
 
@@ -18,3 +17,4 @@ root.render(
     </ApolloProvider>
   </React.StrictMode>
 );
+

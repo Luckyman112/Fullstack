@@ -46,11 +46,12 @@ const ProductPage: React.FC = () => {
   if (!product) return <p>Product not found</p>;
 
   const handleAddToCart = () => {
-    if (cartContext) {
+    if (cartContext && product.inStock) {
+      const price = product.prices?.[0]?.amount || 0;
       cartContext.addToCart({
         id: product.id,
         name: product.name,
-        price: product.prices[0]?.amount || 0,
+        price,
         quantity: 1,
       });
     }
@@ -63,11 +64,29 @@ const ProductPage: React.FC = () => {
           <img src={img} alt={product.name} key={img} />
         ))}
       </div>
+
       <div className="product-details">
         <h1>{product.name}</h1>
-        <p>Price: {product.prices[0]?.currency.symbol}{product.prices[0]?.amount}</p>
-        <button className="add-to-cart" onClick={handleAddToCart}>ADD TO CART</button>
-        <p dangerouslySetInnerHTML={{ __html: product.description }} />
+        {product.prices?.[0] && (
+          <p>
+            Price: {product.prices[0].currency.symbol}
+            {product.prices[0].amount}
+          </p>
+        )}
+
+        <button
+          className="add-to-cart"
+          onClick={handleAddToCart}
+          disabled={!product.inStock}
+        >
+          {product.inStock ? "ADD TO CART" : "OUT OF STOCK"}
+        </button>
+
+        {/* ОСТОРОЖНО: dangerouslySetInnerHTML => см. ТЗ */}
+        <div
+          className="product-description"
+          dangerouslySetInnerHTML={{ __html: product.description }}
+        />
       </div>
     </div>
   );
