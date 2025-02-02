@@ -4,24 +4,23 @@ import ProductCard from "./ProductCard";
 import "../styles/ProductList.css";
 
 const GET_PRODUCTS = gql`
-  query GetProducts($category: String!) {
-    category(input: { title: $category }) {
+  query GetProducts {
+    products {
+      id
       name
-      products {
-        id
-        name
-        inStock
-        gallery
-        prices {
-          currency {
-            symbol
-          }
-          amount
+      inStock
+      gallery
+      prices {
+        currency {
+          symbol
         }
+        amount
       }
     }
   }
 `;
+
+
 
 const ProductList: React.FC<{ category: string }> = ({ category }) => {
   const { loading, error, data } = useQuery(GET_PRODUCTS, {
