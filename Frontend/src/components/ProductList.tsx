@@ -9,6 +9,7 @@ const GET_PRODUCTS = gql`
       id
       name
       inStock
+      category
       gallery
       prices {
         currency {
@@ -26,25 +27,29 @@ const ProductList: React.FC<{ category: string }> = ({ category }) => {
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
 
-  // Защита, если data или data.products не пришли
   if (!data || !data.products) {
     return <p>No products found.</p>;
   }
 
-  // Фильтруем, если category != "all" (при условии, что в бэкенде у нас есть поле category)
-  let filtered = data.products;
+  // Фильтруем по категории
+  let filteredProducts = data.products;
   if (category !== "all") {
-    filtered = data.products.filter((p: any) => p.category === category);
+    filteredProducts = data.products.filter(
+      (product: any) => product.category?.toLowerCase() === category.toLowerCase()
+    );
   }
 
   return (
+  <div className="product-list">
+    {/* Название категории */}
+    <h1 className="category-title">{category.toUpperCase()}</h1>
+    
     <div className="product-grid">
-      {filtered.map((product: any) => (
+      {filteredProducts.map((product: any) => (
         <ProductCard key={product.id} product={product} />
       ))}
     </div>
-  );
-};
+  </div>
+)};
 
 export default ProductList;
-

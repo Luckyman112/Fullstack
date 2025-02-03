@@ -1,3 +1,4 @@
+// src/App.tsx
 import React, { useContext } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Header from "./components/Header";
@@ -19,12 +20,14 @@ const App: React.FC = () => {
 
 const AppContent: React.FC = () => {
   const cartContext = useContext(CartContext);
-
   if (!cartContext) return null;
 
   return (
     <div className={`app-container ${cartContext.isCartOpen ? "cart-open" : ""}`}>
+      {/* Шапка */}
       <Header toggleCart={cartContext.toggleCart} />
+
+      {/* Маршруты */}
       <Routes>
         <Route path="/" element={<Navigate to="/all" replace />} />
         <Route path="/all" element={<ProductList category="all" />} />
@@ -32,6 +35,8 @@ const AppContent: React.FC = () => {
         <Route path="/tech" element={<ProductList category="tech" />} />
         <Route path="/product/:id" element={<ProductPage />} />
       </Routes>
+
+      {/* Оверлей корзины */}
       {cartContext.isCartOpen && (
         <CartOverlay toggleCart={cartContext.toggleCart} />
       )}
@@ -40,4 +45,3 @@ const AppContent: React.FC = () => {
 };
 
 export default App;
-

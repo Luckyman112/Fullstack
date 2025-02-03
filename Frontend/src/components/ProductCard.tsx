@@ -1,6 +1,7 @@
 import React, { useContext } from "react";
-import "../styles/ProductCard.css";
+import { Link } from "react-router-dom";
 import { CartContext } from "../context/CartContext";
+import "../styles/ProductCard.css";
 
 interface Product {
   id: string;
@@ -20,39 +21,40 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
     return null;
   }
 
-  const handleAddToCart = () => {
+  const { addToCart } = cartContext;
+
+  const handleQuickShop = () => {
     if (!product.inStock) return;
     const priceObj = product.prices?.[0];
     const price = priceObj ? priceObj.amount : 0;
-    cartContext.addToCart({
+    addToCart({
       id: product.id,
       name: product.name,
       price,
-      quantity: 1,
+      quantity: 1
     });
   };
 
+  const firstImage = product.gallery?.[0] || "/placeholder.png";
+
   return (
     <div className={`product-card ${!product.inStock ? "out-of-stock" : ""}`}>
-      <img
-        src={product.gallery?.[0]}
-        alt={product.name}
-        className="product-image"
-      />
+      <Link to={`/product/${product.id}`} className="product-link">
+        <div className="image-wrapper">
+          <img src={firstImage} alt={product.name} className="product-image" />
+          {!product.inStock && <div className="overlay-out-of-stock"></div>}
+        </div>
+      </Link>
       <h2 className="product-name">{product.name}</h2>
-
       {product.prices?.[0] && (
         <p className="product-price">
           {product.prices[0].currency.symbol}
-          {product.prices[0].amount}
+          {product.prices[0].amount.toFixed(2)}
         </p>
       )}
-
-      {!product.inStock ? (
-        <span className="stock-status">OUT OF STOCK</span>
-      ) : (
-        <button className="add-to-cart" onClick={handleAddToCart}>
-          Add to Cart
+      {product.inStock && (
+        <button className="quick-shop-btn" onClick={handleQuickShop}>
+          <i className="icon-cart">🛒</i>
         </button>
       )}
     </div>

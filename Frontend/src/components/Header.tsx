@@ -1,3 +1,4 @@
+// src/components/Header.tsx
 import React, { useContext } from "react";
 import { NavLink } from "react-router-dom";
 import "../styles/Header.css";
@@ -14,11 +15,13 @@ const Header: React.FC<HeaderProps> = ({ toggleCart }) => {
     return null; // защита от null
   }
 
+  // Суммируем все quantity
   const cartCount = cartContext.cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
     <header className="header">
       <nav className="navbar">
+        {/* Категории */}
         <ul className="nav-links">
           <li>
             <NavLink
@@ -46,8 +49,9 @@ const Header: React.FC<HeaderProps> = ({ toggleCart }) => {
           </li>
         </ul>
 
+        {/* Иконка корзины + счётчик */}
         <div className="cart-info" onClick={toggleCart}>
-          <span className="cart-icon" /* data-testid="cart-btn" */>
+          <span className="cart-icon" data-testid="cart-btn">
             🛒 <span className="cart-count">{cartCount}</span>
           </span>
         </div>
@@ -57,4 +61,3 @@ const Header: React.FC<HeaderProps> = ({ toggleCart }) => {
 };
 
 export default Header;
-

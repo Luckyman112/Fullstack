@@ -1,65 +1,137 @@
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(354px, 1fr));
+  gap: 30px; /* Увеличенный отступ между карточками */
+  justify-content: center;
+  margin-top: 20px;
+}
+
 .product-card {
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  background: white;
-  padding: 10px;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: transparent; /* Убираем фон */
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: none; /* Убираем тень */
   position: relative;
   overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  width: 354px;
+  height: auto;
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out, background 0.3s;
 }
 
+/* Карточка увеличивается только при наведении */
 .product-card:hover {
-  transform: scale(1.03);
-  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+  transform: scale(1.05);
+  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15);
+  background: white;
+  border-radius: 8px;
 }
 
-.product-card.out-of-stock {
-  opacity: 0.5;
+.image-wrapper {
+  position: relative;
+  width: 100%;
+  height: 330px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.product-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; 
+  border-radius: 8px;
+}
+
+/* "OUT OF STOCK" */
+.out-of-stock .image-wrapper::before {
+  content: "OUT OF STOCK";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: bold;
+  border-radius: 4px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+
+
+/* Убираем дублирующийся текст "OUT OF STOCK" */
+.out-of-stock .product-name {
+  color: rgba(0, 0, 0, 0.6); /* Немного затемнённое название */
+}
+
+.out-of-stock .out-of-stock-label {
+  display: none; /* Полностью скрываем лишний текст */
+}
+
+.out-of-stock {
+  opacity: 0.6;
   pointer-events: none;
 }
 
-.product-card .product-image {
+/* Текст */
+.product-info {
   width: 100%;
-  height: auto;
-  border-radius: 5px;
-  margin-bottom: 10px;
+  text-align: center;
+  padding: 5px 0;
 }
 
-.product-card .product-name {
+.product-name {
   font-size: 16px;
   font-weight: bold;
   margin: 5px 0;
+  text-align: center;
+  color: #333;
 }
 
-.product-card .product-price {
-  font-size: 14px;
-  color: green;
+.product-price {
+  color: #2e8b57;
   font-weight: bold;
+  margin-bottom: 10px;
 }
 
-.product-card .add-to-cart {
-  background: green;
-  color: white;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.product-card .add-to-cart:hover {
-  background: darkgreen;
-}
-
-.product-card .stock-status {
+/* Кнопка добавления в корзину (по умолчанию скрыта) */
+.add-to-cart {
   position: absolute;
-  top: 10px;
-  left: 10px;
-  background: red;
+  bottom: 15px;
+  right: 15px;
+  width: 52px;
+  height: 52px;
+  background-color: #5ece7b;
   color: white;
-  padding: 5px 10px;
-  border-radius: 3px;
-  font-size: 12px;
-  font-weight: bold;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+  border: none;
+  cursor: pointer;
 }
+
+.product-card:hover .add-to-cart {
+  opacity: 1;
+}
+
+.add-to-cart i {
+  font-size: 18px;
+}
+
+/* Убираем кнопку у товаров, которых нет в наличии */
+.out-of-stock .add-to-cart {
+  display: none !important;
+}
+
+.add-to-cart:hover {
+  background-color: #4caf50;
+}
+
