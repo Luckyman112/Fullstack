@@ -21,13 +21,14 @@ class GraphQLController
     public static function handle(): void
     {
         try {
+            // Если требуется поддержка мутаций, можно добавить:
+            // ->setMutation(self::buildMutationType())
             $schema = new Schema(
                 (new SchemaConfig())
                     ->setQuery(self::buildQueryType())
-                    ->setMutation(self::buildMutationType())
             );
 
-            $input = \json_decode(file_get_contents('php://input'), true);
+            $input = json_decode(file_get_contents('php://input'), true);
             $query = $input['query'] ?? '';
             $variables = $input['variables'] ?? [];
 
@@ -48,15 +49,11 @@ class GraphQLController
 
     private static function buildQueryType(): ObjectType
     {
-        // Тип Currency
         $currencyType = new ObjectType([
             'name' => 'Currency',
-            'fields' => [
-                'symbol' => Type::string(),
-            ],
+            'fields' => ['symbol' => Type::string()],
         ]);
 
-        // Тип Price
         $priceType = new ObjectType([
             'name' => 'Price',
             'fields' => [
@@ -65,12 +62,23 @@ class GraphQLController
             ],
         ]);
 
-        // Тип Category
-        $categoryType = new ObjectType([
-            'name' => 'Category',
+        $attributeItemType = new ObjectType([
+            'name' => 'AttributeItem',
             'fields' => [
+                'id' => Type::string(),
+                'value' => Type::string(),
+                'displayValue' => Type::string(),
+            ],
+        ]);
+
+        $attributeType = new ObjectType([
+            'name' => 'Attribute',
+            'fields' => [
+                'id' => Type::string(),
                 'name' => Type::string(),
-            ]
+                'type' => Type::string(),
+                'items' => Type::listOf($attributeItemType),
+            ],
         ]);
 
         // Тип Product (абстрактную модель будем резолвить вручную)
@@ -83,56 +91,38 @@ class GraphQLController
                 'category' => Type::string(),
                 'brand' => Type::string(),
                 'description' => Type::string(),
-                // Gallery => массив string
                 'gallery' => Type::listOf(Type::string()),
-                // Attributes => JSON (или отдельный ObjectType)
-                'attributes' => Type::string(),
-
-                // Одиночные поля
+                'attributes' => Type::listOf($attributeType),
                 'price' => Type::float(),
                 'currencyLabel' => Type::string(),
                 'currencySymbol' => Type::string(),
-
-                // Тип, если нужно (clothes/tech)
                 'typeName' => Type::string(),
-
-                // Новое поле: "prices" - массив Price
                 'prices' => [
                     'type' => Type::listOf($priceType),
-                    'resolve' => function($rootValue) {
-                        // $rootValue - это объект AbstractProduct
-                        // Берём методы:
-                        $amount = $rootValue->getPrice();
-                        $symbol = $rootValue->getCurrencySymbol() ?? '$';
-
-                        // Возвращаем массив (даже если одна цена)
-                        return [
-                            [
-                                'amount' => (float)$amount,
-                                'currency' => [ 'symbol' => $symbol ]
-                            ]
-                        ];
+                    'resolve' => function ($rootValue) {
+                        return [[
+                            'amount' => (float)$rootValue->getPrice(),
+                            'currency' => ['symbol' => $rootValue->getCurrencySymbol() ?? '$']
+                        ]];
                     },
                 ],
             ],
-            'resolveField' => function($productValue, $args, $context, $info) {
-                /** @var AbstractProduct $product */
+            'resolveField' => function ($productValue, $args, $context, $info) {
                 $product = $productValue;
                 $fieldName = $info->fieldName;
-
                 return match ($fieldName) {
-                    'id'             => $product->getId(),
-                    'name'           => $product->getName(),
-                    'inStock'        => $product->isInStock(),
-                    'category'       => $product->getCategory(),
-                    'brand'          => $product->getBrand(),
-                    'description'    => $product->getDescription(),
-                    'gallery'        => $product->getGallery(),
-                    'attributes'     => \json_encode($product->getAttributesData()),
-                    'price'          => $product->getPrice(),
-                    'currencyLabel'  => $product->getCurrencyLabel(),
+                    'id' => $product->getId(),
+                    'name' => $product->getName(),
+                    'inStock' => $product->isInStock(),
+                    'category' => $product->getCategory(),
+                    'brand' => $product->getBrand(),
+                    'description' => $product->getDescription(),
+                    'gallery' => $product->getGallery(),
+                    'attributes' => $product->getAttributesData(),
+                    'price' => $product->getPrice(),
+                    'currencyLabel' => $product->getCurrencyLabel(),
                     'currencySymbol' => $product->getCurrencySymbol(),
-                    'typeName'       => $product->getTypeName(),
+                    'typeName' => $product->getTypeName(),
                     default => null,
                 };
             }
@@ -151,7 +141,10 @@ class GraphQLController
             'name' => 'Query',
             'fields' => [
                 'categories' => [
-                    'type' => Type::listOf($categoryType),
+                    'type' => Type::listOf(new ObjectType([
+                        'name' => 'Category',
+                        'fields' => ['name' => Type::string()],
+                    ])),
                     'resolve' => fn() => self::fetchAllCategories(),
                 ],
                 'products' => [
@@ -160,14 +153,8 @@ class GraphQLController
                 ],
                 'product' => [
                     'type' => $productType,
-                    'args' => [
-                        'id' => Type::nonNull(Type::string()),
-                    ],
+                    'args' => ['id' => Type::nonNull(Type::string())],
                     'resolve' => fn($root, $args) => self::fetchProductById($args['id']),
-                ],
-                'orders' => [
-                    'type' => Type::listOf($orderType),
-                    'resolve' => fn() => self::fetchAllOrders(),
                 ],
             ],
         ]);
@@ -255,7 +242,7 @@ class GraphQLController
     private static function fetchProductById(string $id): ?AbstractProduct
     {
         $pdo = Database::getConnection();
-        $stmt = $pdo->prepare("SELECT * FROM products WHERE id=:id");
+        $stmt = $pdo->prepare("SELECT * FROM products WHERE id = :id");
         $stmt->bindValue(':id', $id);
         $stmt->execute();
         $row = $stmt->fetch(PDO::FETCH_ASSOC);

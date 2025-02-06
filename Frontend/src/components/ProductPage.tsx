@@ -32,9 +32,39 @@ const GET_PRODUCT = gql`
   }
 `;
 
+interface AttributeItem {
+  displayValue: string;
+  value: string;
+  id: string;
+}
+
+interface Attribute {
+  id: string;
+  name: string;
+  type: string;
+  items: AttributeItem[];
+}
+
+interface Price {
+  currency: {
+    symbol: string;
+  };
+  amount: number;
+}
+
+interface Product {
+  id: string;
+  name: string;
+  description: string;
+  gallery: string[];
+  inStock: boolean;
+  attributes: Attribute[];
+  prices: Price[];
+}
+
 const ProductPage: React.FC = () => {
-  const { id } = useParams();
-  const { loading, error, data } = useQuery(GET_PRODUCT, {
+  const { id } = useParams<{ id: string }>();
+  const { loading, error, data } = useQuery<{ product: Product }>(GET_PRODUCT, {
     variables: { id },
   });
   const cartContext = useContext(CartContext);
@@ -60,7 +90,7 @@ const ProductPage: React.FC = () => {
   return (
     <div className="product-page">
       <div className="gallery">
-        {product.gallery.map((img: string) => (
+        {product.gallery.map((img) => (
           <img src={img} alt={product.name} key={img} />
         ))}
       </div>
@@ -82,7 +112,17 @@ const ProductPage: React.FC = () => {
           {product.inStock ? "ADD TO CART" : "OUT OF STOCK"}
         </button>
 
-        {/* ОСТОРОЖНО: dangerouslySetInnerHTML => см. ТЗ */}
+        <div className="attributes">
+          {product.attributes.map((attr) => (
+            <div key={attr.id} className="attribute">
+              <h3>{attr.name}</h3>
+              {attr.items.map((item) => (
+                <button key={item.id}>{item.displayValue}</button>
+              ))}
+            </div>
+          ))}
+        </div>
+
         <div
           className="product-description"
           dangerouslySetInnerHTML={{ __html: product.description }}
