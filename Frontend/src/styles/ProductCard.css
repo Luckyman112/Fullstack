@@ -1,137 +1,128 @@
-.product-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(354px, 1fr));
-  gap: 30px; /* Увеличенный отступ между карточками */
-  justify-content: center;
-  margin-top: 20px;
-}
-
+/* ✅ Основной стиль карточки */
 .product-card {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: transparent; /* Убираем фон */
-  border-radius: 8px;
+  text-align: center;
   padding: 15px;
-  box-shadow: none; /* Убираем тень */
+  border-radius: 8px;
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
   position: relative;
   overflow: hidden;
-  width: 354px;
-  height: auto;
-  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out, background 0.3s;
+  background: white;
 }
 
-/* Карточка увеличивается только при наведении */
+/* ✅ Эффект наведения */
 .product-card:hover {
   transform: scale(1.05);
   box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* ✅ Обёртка изображения */
+.image-wrapper {
+  width: 100%;
+  height: 250px; /* Фиксируем высоту */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
   background: white;
   border-radius: 8px;
 }
 
-.image-wrapper {
-  position: relative;
-  width: 100%;
-  height: 330px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
+/* ✅ Само изображение */
 .product-card img {
   width: 100%;
   height: 100%;
-  object-fit: cover; 
-  border-radius: 8px;
+  object-fit: contain;
+  transition: transform 0.3s ease;
 }
 
-/* "OUT OF STOCK" */
+.product-card:hover img {
+  transform: scale(1.1);
+}
+
+/* ✅ Название товара */
+.product-name {
+  font-size: 16px;
+  font-weight: bold;
+  margin: 10px 0 5px 0;
+  color: #333;
+}
+
+/* ✅ Цена товара */
+.product-price {
+  color: #2e8b57;
+  font-weight: bold;
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+/* ✅ Стиль "OUT OF STOCK" */
 .out-of-stock .image-wrapper::before {
   content: "OUT OF STOCK";
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: rgba(0, 0, 0, 0.7);
-  color: white;
-  padding: 8px 12px;
-  font-size: 14px;
+  font-size: 20px;
   font-weight: bold;
+  color: gray;
+  background: rgba(0, 0, 0, 0); /* Затемнение */
+  padding: 10px 15px;
   border-radius: 4px;
-  text-transform: uppercase;
-  white-space: nowrap;
+  z-index: 2;
 }
 
-
-
-/* Убираем дублирующийся текст "OUT OF STOCK" */
-.out-of-stock .product-name {
-  color: rgba(0, 0, 0, 0.6); /* Немного затемнённое название */
-}
-
-.out-of-stock .out-of-stock-label {
-  display: none; /* Полностью скрываем лишний текст */
-}
-
-.out-of-stock {
-  opacity: 0.6;
-  pointer-events: none;
-}
-
-/* Текст */
-.product-info {
+/* ✅ Полупрозрачный эффект для отсутствующих товаров */
+.out-of-stock .image-wrapper::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
-  text-align: center;
-  padding: 5px 0;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.5);
+  z-index: 1;
 }
 
-.product-name {
-  font-size: 16px;
-  font-weight: bold;
-  margin: 5px 0;
-  text-align: center;
-  color: #333;
+/* ✅ Наведение на "OUT OF STOCK" */
+.out-of-stock:hover .image-wrapper::before,
+.out-of-stock:hover .image-wrapper::after {
+  opacity: 1;
 }
 
-.product-price {
-  color: #2e8b57;
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-
-/* Кнопка добавления в корзину (по умолчанию скрыта) */
-.add-to-cart {
+/* ✅ Кнопка "Quick Shop" */
+.quick-shop-btn {
   position: absolute;
   bottom: 15px;
   right: 15px;
-  width: 52px;
-  height: 52px;
+  width: 48px;
+  height: 48px;
   background-color: #5ece7b;
   color: white;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 0;
+  opacity: 0; /* По умолчанию скрыто */
   transition: opacity 0.3s ease-in-out;
   border: none;
   cursor: pointer;
+  font-size: 20px;
+  z-index: 3;
 }
 
-.product-card:hover .add-to-cart {
+.product-card:hover .quick-shop-btn {
   opacity: 1;
 }
 
-.add-to-cart i {
-  font-size: 18px;
-}
-
-/* Убираем кнопку у товаров, которых нет в наличии */
-.out-of-stock .add-to-cart {
-  display: none !important;
-}
-
-.add-to-cart:hover {
+.quick-shop-btn:hover {
   background-color: #4caf50;
 }
 
+/* ✅ Скрываем кнопку у товаров "OUT OF STOCK" */
+.out-of-stock .quick-shop-btn {
+  display: none !important;
+}

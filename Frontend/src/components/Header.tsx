@@ -1,8 +1,7 @@
-// src/components/Header.tsx
 import React, { useContext } from "react";
 import { NavLink } from "react-router-dom";
-import "../styles/Header.css";
 import { CartContext } from "../context/CartContext";
+import "../styles/Header.css";
 
 interface HeaderProps {
   toggleCart: () => void;
@@ -10,52 +9,38 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ toggleCart }) => {
   const cartContext = useContext(CartContext);
+  if (!cartContext) return null;
 
-  if (!cartContext) {
-    return null; // защита от null
-  }
-
-  // Суммируем все quantity
-  const cartCount = cartContext.cartItems.reduce((acc, item) => acc + item.quantity, 0);
+  // Подсчитываем товары в корзине
+  const cartCount = cartContext.cartItems.reduce(
+    (acc, item) => acc + item.quantity,
+    0
+  );
 
   return (
-    <header className="header">
-      <nav className="navbar">
+    <header className="top-header">
+      <div className="header-container">
         {/* Категории */}
-        <ul className="nav-links">
-          <li>
-            <NavLink
-              to="/all"
-              className={({ isActive }) => (isActive ? "active" : "")}
-            >
-              ALL
-            </NavLink>
-          </li>
-          <li>
-            <NavLink
-              to="/clothes"
-              className={({ isActive }) => (isActive ? "active" : "")}
-            >
-              CLOTHES
-            </NavLink>
-          </li>
-          <li>
-            <NavLink
-              to="/tech"
-              className={({ isActive }) => (isActive ? "active" : "")}
-            >
-              TECH
-            </NavLink>
-          </li>
-        </ul>
+        <nav className="nav-links">
+          <NavLink to="/all" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
+            ALL
+          </NavLink>
+          <NavLink to="/clothes" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
+            CLOTHES
+          </NavLink>
+          <NavLink to="/tech" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
+            TECH
+          </NavLink>
+        </nav>
 
-        {/* Иконка корзины + счётчик */}
-        <div className="cart-info" onClick={toggleCart}>
-          <span className="cart-icon" data-testid="cart-btn">
-            🛒 <span className="cart-count">{cartCount}</span>
+        {/* Корзина */}
+        <div className="cart-area" onClick={toggleCart}>
+          <span className="cart-icon">
+            🛒
+            {cartCount > 0 && <span className="cart-count">{cartCount}</span>}
           </span>
         </div>
-      </nav>
+      </div>
     </header>
   );
 };

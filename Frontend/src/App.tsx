@@ -20,7 +20,7 @@ const App: React.FC = () => {
 
 const AppContent: React.FC = () => {
   const cartContext = useContext(CartContext);
-  if (!cartContext) return null;
+  if (!cartContext) return <p>Loading...</p>;
 
   return (
     <div className={`app-container ${cartContext.isCartOpen ? "cart-open" : ""}`}>
@@ -34,14 +34,23 @@ const AppContent: React.FC = () => {
         <Route path="/clothes" element={<ProductList category="clothes" />} />
         <Route path="/tech" element={<ProductList category="tech" />} />
         <Route path="/product/:id" element={<ProductPage />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
 
-      {/* Оверлей корзины */}
+      {/* Оверлей корзины (только если открыта) */}
       {cartContext.isCartOpen && (
         <CartOverlay toggleCart={cartContext.toggleCart} />
       )}
     </div>
   );
 };
+
+/** Страница "404 - Not Found" */
+const NotFound: React.FC = () => (
+  <div className="not-found">
+    <h1>404</h1>
+    <p>Oops! Page not found.</p>
+  </div>
+);
 
 export default App;
