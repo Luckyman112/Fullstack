@@ -42,10 +42,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     localStorage.setItem("cart", JSON.stringify(cartItems));
   }, [cartItems]);
 
-  const areAttributesEqual = (
-    a: { [key: string]: string } = {},
-    b: { [key: string]: string } = {}
-  ) => {
+  const areAttributesEqual = (a: { [key: string]: string } = {}, b: { [key: string]: string } = {}) => {
     return (
       Object.keys(a).length === Object.keys(b).length &&
       Object.keys(a).every((key) => a[key] === b[key])
@@ -68,11 +65,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     });
   };
 
-  const updateQuantity = (
-    id: string,
-    attributes: { [key: string]: string } = {},
-    quantity: number = 1
-  ) => {
+  const updateQuantity = (id: string, attributes: { [key: string]: string } = {}, quantity: number = 1) => {
     if (quantity <= 0) return;
     setCartItems((prev) =>
       prev.map((item) =>
@@ -87,10 +80,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setCartItems((prev) =>
       prev.map((item) =>
         item.id === id
-          ? {
-              ...item,
-              attributes: { ...item.attributes, ...newAttributes },
-            }
+          ? { ...item, attributes: { ...item.attributes, ...newAttributes } }
           : item
       )
     );
@@ -98,9 +88,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const removeItem = (id: string, attributes: { [key: string]: string } = {}) => {
     setCartItems((prev) =>
-      prev.filter(
-        (item) => !(item.id === id && areAttributesEqual(item.attributes, attributes))
-      )
+      prev.filter((item) => !(item.id === id && areAttributesEqual(item.attributes, attributes)))
     );
   };
 

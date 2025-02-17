@@ -25,7 +25,6 @@ const App: React.FC = () => {
 const AppContent: React.FC = () => {
   const cartContext = useContext(CartContext);
 
-  // Если контекст не загрузился, выводим заглушку (крайне редкий случай)
   if (!cartContext) {
     return <p>Loading...</p>;
   }
@@ -38,23 +37,15 @@ const AppContent: React.FC = () => {
       <Header toggleCart={toggleCart} />
 
       <Routes>
-        {/* Роутинг: перенаправление на /ALL при открытии корня */}
         <Route path="/" element={<Navigate to="/ALL" replace />} />
-
-        {/* Категории */}
         <Route path="/ALL" element={<ProductList category="all" />} />
         <Route path="/tech" element={<ProductList category="tech" />} />
         <Route path="/Clothes" element={<ProductList category="Clothes" />} />
-
-        {/* Страница одного продукта */}
         <Route path="/product/:id" element={<ProductPage />} />
-
-        {/* 404 */}
         <Route path="*" element={<NotFound />} />
       </Routes>
 
-      {/* ВАЖНО: рендерим CartOverlay ВСЕГДА (без условия), 
-          но оно будет «спрятано» за экраном, пока isCartOpen === false */}
+      {/* Рендерим CartOverlay ВСЕГДА, оно скрыто, если isCartOpen === false */}
       <CartOverlay toggleCart={toggleCart} />
     </div>
   );

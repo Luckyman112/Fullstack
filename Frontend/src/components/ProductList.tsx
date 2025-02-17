@@ -70,15 +70,12 @@ const ProductList: React.FC<ProductListProps> = ({ category }) => {
   if (error) return <p className="error-message">Error: {error.message}</p>;
   if (!data || !data.products) return <p className="no-products">No products found.</p>;
 
-  // Фильтруем товары по категории
-  // Фильтруем по категории
-let filteredProducts = data.products;
-if (category?.toLowerCase() !== "all") {
-  filteredProducts = data.products.filter(
-    (product) => product.category?.toLowerCase() === category.toLowerCase()
-  );
-}
-
+  let filteredProducts = data.products;
+  if (category?.toLowerCase() !== "all") {
+    filteredProducts = data.products.filter(
+      (product) => product.category?.toLowerCase() === category.toLowerCase()
+    );
+  }
 
   return (
     <div className="product-list">
@@ -100,3 +97,4 @@ if (category?.toLowerCase() !== "all") {
 };
 
 export default ProductList;
+

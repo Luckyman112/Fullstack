@@ -44,11 +44,8 @@ const ProductPage: React.FC = () => {
 
   const cartContext = useContext(CartContext);
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
-  const [selectedAttributes, setSelectedAttributes] = useState<{
-    [key: string]: string;
-  }>({});
+  const [selectedAttributes, setSelectedAttributes] = useState<{ [key: string]: string }>({});
 
-  // Прокручиваем страницу в самый верх при монтировании компонента
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -59,41 +56,29 @@ const ProductPage: React.FC = () => {
 
   const product = data.product;
 
-  // Переключение по миниатюрам
   const handleThumbnailClick = (index: number) => {
     setSelectedIndex(index);
   };
 
-  // Стрелки "вперёд/назад"
   const goPrev = () => {
-    setSelectedIndex((prev) =>
-      prev === 0 ? product.gallery.length - 1 : prev - 1
-    );
+    setSelectedIndex((prev) => (prev === 0 ? product.gallery.length - 1 : prev - 1));
   };
   const goNext = () => {
-    setSelectedIndex((prev) =>
-      prev === product.gallery.length - 1 ? 0 : prev + 1
-    );
+    setSelectedIndex((prev) => (prev === product.gallery.length - 1 ? 0 : prev + 1));
   };
 
-  // Выбор атрибутов (size, color, etc.)
   const handleAttributeSelect = (attrId: string, value: string) => {
     setSelectedAttributes((prev) => ({ ...prev, [attrId]: value }));
   };
 
-  // Проверяем, выбраны ли все атрибуты (если есть)
   const allSelected = product.attributes?.length
     ? Object.keys(selectedAttributes).length === product.attributes.length
     : true;
 
-  // Проверяем, доступен ли товар и выбраны ли все атрибуты
   const isDisabled = !product.inStock || !allSelected;
 
-  // Добавление в корзину
   const handleAddToCart = () => {
     if (!cartContext) return;
-
-    // Если товар недоступен или не выбраны все атрибуты, ничего не делаем
     if (isDisabled) return;
 
     const price = product.prices?.[0]?.amount ?? 0;
@@ -109,14 +94,10 @@ const ProductPage: React.FC = () => {
         return acc;
       }, {}),
     });
-
-    // При желании, можете автоматически открывать мини-корзину:
-    // cartContext.toggleCart();
   };
 
   return (
     <div className="product-page">
-      {/* Левая колонка: миниатюры + основное изображение */}
       <div className="left-column">
         {product.gallery.length > 1 && (
           <div className="thumbnails">
@@ -149,14 +130,12 @@ const ProductPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Правая колонка: название, атрибуты, цена, кнопка ADD TO CART, описание */}
       <div className="right-column">
         <h1 className="product-name">{product.name}</h1>
 
         <div className="product-attributes">
           {product.attributes.map((attr: any) => {
-            const isColor =
-              attr.type === "swatch" || attr.name.toLowerCase() === "color";
+            const isColor = attr.type === "swatch" || attr.name.toLowerCase() === "color";
             return (
               <div
                 key={attr.id}
@@ -168,9 +147,7 @@ const ProductPage: React.FC = () => {
                   {attr.items.map((item: any) => (
                     <button
                       key={item.id}
-                      className={`attribute-btn ${
-                        selectedAttributes[attr.id] === item.value ? "selected" : ""
-                      } ${isColor ? "color-btn" : ""}`}
+                      className={`attribute-btn ${selectedAttributes[attr.id] === item.value ? "selected" : ""} ${isColor ? "color-btn" : ""}`}
                       onClick={() => handleAttributeSelect(attr.id, item.value)}
                       style={isColor ? { backgroundColor: item.value } : {}}
                     >
@@ -183,7 +160,6 @@ const ProductPage: React.FC = () => {
           })}
         </div>
 
-        {/* Цена */}
         <div className="price-block">
           <h3 className="attribute-title">PRICE:</h3>
           <p className="product-price">
@@ -192,7 +168,6 @@ const ProductPage: React.FC = () => {
           </p>
         </div>
 
-        {/* Кнопка ADD TO CART */}
         <button
           className="add-to-cart-btn"
           data-testid="add-to-cart"
@@ -202,7 +177,6 @@ const ProductPage: React.FC = () => {
           {product.inStock ? "ADD TO CART" : "OUT OF STOCK"}
         </button>
 
-        {/* Описание (HTML) */}
         <div className="product-description" data-testid="product-description">
           {parse(product.description)}
         </div>
@@ -212,4 +186,5 @@ const ProductPage: React.FC = () => {
 };
 
 export default ProductPage;
+
 

@@ -100,21 +100,39 @@ const CartOverlay: React.FC<CartOverlayProps> = ({ toggleCart }) => {
                   <div className="cart-item-attributes">
                     {Object.entries(item.attributes).map(([key, value]) => {
                       const attrKebab = key.toLowerCase().replace(/\s+/g, "-");
-                      return (
-                        <div
-                          key={key}
-                          className="cart-attribute"
-                          data-testid={`cart-item-attribute-${attrKebab}`}
-                        >
-                          <span className="attribute-label">{key}:</span>
-                          <span
-                            className="attribute-value"
-                            data-testid={`cart-item-attribute-${attrKebab}-${attrKebab}-selected`}
+                      // Если это атрибут "color", рендерим цветной квадратик
+                      if (attrKebab === "color") {
+                        return (
+                          <div
+                            key={key}
+                            className="cart-attribute"
+                            data-testid={`cart-item-attribute-${attrKebab}`}
                           >
-                            {value}
-                          </span>
-                        </div>
-                      );
+                            <span className="attribute-label">{key}:</span>
+                            <span
+                              className="color-swatch"
+                              style={{ backgroundColor: value }}
+                              data-testid={`cart-item-attribute-${attrKebab}-${attrKebab}-selected`}
+                            />
+                          </div>
+                        );
+                      } else {
+                        return (
+                          <div
+                            key={key}
+                            className="cart-attribute"
+                            data-testid={`cart-item-attribute-${attrKebab}`}
+                          >
+                            <span className="attribute-label">{key}:</span>
+                            <span
+                              className="attribute-value"
+                              data-testid={`cart-item-attribute-${attrKebab}-${attrKebab}-selected`}
+                            >
+                              {value}
+                            </span>
+                          </div>
+                        );
+                      }
                     })}
                   </div>
                 )}
@@ -167,4 +185,3 @@ const CartOverlay: React.FC<CartOverlayProps> = ({ toggleCart }) => {
 };
 
 export default CartOverlay;
-
