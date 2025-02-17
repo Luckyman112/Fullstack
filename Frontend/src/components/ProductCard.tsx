@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Link } from "react-router-dom";
+import { CartContext } from "../context/CartContext";
 import "../styles/ProductCard.css";
 
 interface Price {
@@ -13,6 +14,16 @@ interface Product {
   inStock: boolean;
   gallery: string[];
   prices: Price[];
+  attributes?: {
+    id: string;
+    name: string;
+    type: string;
+    items: {
+      id: string;
+      displayValue: string;
+      value: string;
+    }[];
+  }[];
 }
 
 interface ProductCardProps {
@@ -20,21 +31,51 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
-  const { id, name, inStock, gallery, prices } = product;
+  const cartContext = useContext(CartContext);
+  const { id, name, inStock, gallery, prices, attributes } = product;
   const mainPrice = prices[0]?.amount || 0;
   const currencySymbol = prices[0]?.currency?.symbol || "$";
+
+  // Формируем data-testid в kebab-case
+  const testId = `product-${name.toLowerCase().replace(/\s+/g, "-")}`;
+
+  // Функция Quick Shop: добавляет товар с дефолтными опциями (первый вариант каждого атрибута)
+  const handleQuickShop = (e: React.MouseEvent) => {
+    // Предотвращаем срабатывание перехода по ссылке
+    e.preventDefault();
+    if (!inStock || !cartContext) return;
+    const defaultAttributes = attributes
+      ? attributes.reduce((acc, attr) => {
+          if (attr.items && attr.items.length > 0) {
+            acc[attr.id] = attr.items[0].value;
+          }
+          return acc;
+        }, {} as { [key: string]: string })
+      : {};
+    cartContext.addToCart({
+      id,
+      name,
+      price: mainPrice,
+      quantity: 1,
+      image: gallery[0] || "",
+      attributes: defaultAttributes,
+      availableAttributes: attributes
+        ? attributes.reduce((acc, attr) => {
+            acc[attr.id] = attr.items.map((item) => item.value);
+            return acc;
+          }, {} as { [key: string]: string[] })
+        : {},
+    });
+  };
 
   return (
     <Link
       to={`/product/${id}`}
+      data-testid={testId}
       className={`product-card ${!inStock ? "out-of-stock" : ""}`}
     >
       <div className="image-wrapper">
-        <img
-          src={gallery[0]}
-          alt={name}
-          className="product-image"
-        />
+        <img src={gallery[0]} alt={name} className="product-image" />
       </div>
 
       <div className="info-wrapper">
@@ -45,9 +86,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         </p>
       </div>
 
-      {/* "Быстрая" кнопка (появляется при наведении, если товар в наличии) */}
       {inStock && (
-        <button className="quick-shop-btn">
+        <button className="quick-shop-btn" onClick={handleQuickShop}>
           🛒
         </button>
       )}
@@ -56,3 +96,4 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 };
 
 export default ProductCard;
+

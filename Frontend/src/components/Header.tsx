@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { NavLink, useMatch } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { CartContext } from "../context/CartContext";
 import "../styles/Header.css";
 
@@ -9,43 +9,36 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ toggleCart }) => {
   const cartContext = useContext(CartContext);
-  console.log("Cart Context:", cartContext); // Проверка
-
   if (!cartContext) return null;
 
   // Подсчитываем товары
   const cartCount = cartContext.cartItems.reduce((acc, item) => acc + item.quantity, 0);
-
-  // Определяем активные маршруты
-  const matchWomen = useMatch("/women");
-  const matchMen = useMatch("/men");
-  const matchKids = useMatch("/kids");
 
   return (
     <header className="top-header">
       <div className="header-container">
         {/* Категории */}
         <nav className="nav-links">
-          <NavLink
-            to="/ALL"
-            className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}
-            data-testid={matchWomen ? "active-category-link" : "category-link"}
-          >
-            ALL
+          <NavLink to="/ALL" className="nav-link">
+            {({ isActive }) => (
+              <span data-testid={isActive ? "active-category-link" : "category-link"}>
+                ALL
+              </span>
+            )}
           </NavLink>
-          <NavLink
-            to="/Tech"
-            className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}
-            data-testid={matchMen ? "active-category-link" : "category-link"}
-          >
-            Tech
+          <NavLink to="/Tech" className="nav-link">
+            {({ isActive }) => (
+              <span data-testid={isActive ? "active-category-link" : "category-link"}>
+                Tech
+              </span>
+            )}
           </NavLink>
-          <NavLink
-            to="/clothes"
-            className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}
-            data-testid={matchKids ? "active-category-link" : "category-link"}
-          >
-            Clothes
+          <NavLink to="/clothes" className="nav-link">
+            {({ isActive }) => (
+              <span data-testid={isActive ? "active-category-link" : "category-link"}>
+                Clothes
+              </span>
+            )}
           </NavLink>
         </nav>
 

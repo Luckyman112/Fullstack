@@ -81,19 +81,20 @@ const ProductPage: React.FC = () => {
     setSelectedAttributes((prev) => ({ ...prev, [attrId]: value }));
   };
 
+  // Проверяем, выбраны ли все атрибуты (если есть)
+  const allSelected = product.attributes?.length
+    ? Object.keys(selectedAttributes).length === product.attributes.length
+    : true;
+
+  // Проверяем, доступен ли товар и выбраны ли все атрибуты
+  const isDisabled = !product.inStock || !allSelected;
+
   // Добавление в корзину
   const handleAddToCart = () => {
-    if (!cartContext || !product.inStock) return;
+    if (!cartContext) return;
 
-    // Проверяем, выбраны ли все атрибуты
-    if (product.attributes?.length) {
-      const allSelected =
-        Object.keys(selectedAttributes).length === product.attributes.length;
-      if (!allSelected) {
-        alert("Please select all attributes before adding to cart.");
-        return;
-      }
-    }
+    // Если товар недоступен или не выбраны все атрибуты, ничего не делаем
+    if (isDisabled) return;
 
     const price = product.prices?.[0]?.amount ?? 0;
     cartContext.addToCart({
@@ -108,13 +109,15 @@ const ProductPage: React.FC = () => {
         return acc;
       }, {}),
     });
+
+    // При желании, можете автоматически открывать мини-корзину:
+    // cartContext.toggleCart();
   };
 
   return (
     <div className="product-page">
       {/* Левая колонка: миниатюры + основное изображение */}
       <div className="left-column">
-        {/* Блок миниатюр (только если картинок > 1) */}
         {product.gallery.length > 1 && (
           <div className="thumbnails">
             {product.gallery.map((img: string, index: number) => (
@@ -122,16 +125,13 @@ const ProductPage: React.FC = () => {
                 key={img}
                 src={img}
                 alt={product.name}
-                className={`thumbnail ${
-                  selectedIndex === index ? "selected" : ""
-                }`}
+                className={`thumbnail ${selectedIndex === index ? "selected" : ""}`}
                 onClick={() => handleThumbnailClick(index)}
               />
             ))}
           </div>
         )}
 
-        {/* Основное изображение со стрелками (если картинок > 1) */}
         <div className="main-image">
           {product.gallery.length > 1 && (
             <button className="arrow-button left-arrow" onClick={goPrev}>
@@ -169,9 +169,7 @@ const ProductPage: React.FC = () => {
                     <button
                       key={item.id}
                       className={`attribute-btn ${
-                        selectedAttributes[attr.id] === item.value
-                          ? "selected"
-                          : ""
+                        selectedAttributes[attr.id] === item.value ? "selected" : ""
                       } ${isColor ? "color-btn" : ""}`}
                       onClick={() => handleAttributeSelect(attr.id, item.value)}
                       style={isColor ? { backgroundColor: item.value } : {}}
@@ -198,17 +196,14 @@ const ProductPage: React.FC = () => {
         <button
           className="add-to-cart-btn"
           data-testid="add-to-cart"
-          disabled={!product.inStock}
+          disabled={isDisabled}
           onClick={handleAddToCart}
         >
           {product.inStock ? "ADD TO CART" : "OUT OF STOCK"}
         </button>
 
         {/* Описание (HTML) */}
-        <div
-          className="product-description"
-          data-testid="product-description"
-        >
+        <div className="product-description" data-testid="product-description">
           {parse(product.description)}
         </div>
       </div>
@@ -217,3 +212,4 @@ const ProductPage: React.FC = () => {
 };
 
 export default ProductPage;
+

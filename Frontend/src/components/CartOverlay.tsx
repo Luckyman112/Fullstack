@@ -1,6 +1,13 @@
 import React, { useContext, useEffect, useRef } from "react";
+import { useMutation, gql } from "@apollo/client";
 import { CartContext } from "../context/CartContext";
 import "../styles/CartOverlay.css";
+
+const CREATE_ORDER_MUTATION = gql`
+  mutation CreateOrder($items: [OrderItemInput!]!) {
+    createOrder(items: $items)
+  }
+`;
 
 interface CartOverlayProps {
   toggleCart: () => void;
@@ -8,9 +15,11 @@ interface CartOverlayProps {
 
 const CartOverlay: React.FC<CartOverlayProps> = ({ toggleCart }) => {
   const cartContext = useContext(CartContext);
+  const [createOrder] = useMutation(CREATE_ORDER_MUTATION);
+
   if (!cartContext) return null;
 
-  const { cartItems, updateQuantity, removeItem, currency, isCartOpen } = cartContext;
+  const { cartItems, updateQuantity, removeItem, currency, isCartOpen, clearCart } = cartContext;
   const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   // Ссылка на блок корзины для определения клика "вне корзины"
@@ -35,6 +44,28 @@ const CartOverlay: React.FC<CartOverlayProps> = ({ toggleCart }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isCartOpen, toggleCart]);
 
+  // Обработчик для PLACE ORDER
+  const handlePlaceOrder = async () => {
+    if (cartItems.length === 0) return;
+    
+    // Формируем массив заказанных товаров: { productId, quantity }
+    const items = cartItems.map(item => ({
+      productId: item.id,
+      quantity: item.quantity
+    }));
+
+    try {
+      const result = await createOrder({ variables: { items } });
+      console.log("Order created with ID:", result.data.createOrder);
+      // Очистка корзины и закрытие оверлея
+      clearCart();
+      toggleCart();
+    } catch (error) {
+      console.error("Order creation failed:", error);
+      // Здесь можно добавить уведомление об ошибке
+    }
+  };
+
   return (
     <>
       {/* Фон-затемнения с анимацией */}
@@ -46,8 +77,7 @@ const CartOverlay: React.FC<CartOverlayProps> = ({ toggleCart }) => {
       {/* Мини-корзина с анимацией */}
       <div className={`cart-mini ${isCartOpen ? "open" : ""}`} ref={cartRef}>
         <h2 className="cart-title">
-          <strong>My Bag</strong>, {cartItems.length}{" "}
-          {cartItems.length === 1 ? "item" : "items"}
+          <strong>My Bag</strong>, {cartItems.length} {cartItems.length === 1 ? "item" : "items"}
         </h2>
 
         <div className="cart-items">
@@ -63,25 +93,26 @@ const CartOverlay: React.FC<CartOverlayProps> = ({ toggleCart }) => {
               <div className="cart-item-details">
                 <h3 className="cart-item-name">{item.name}</h3>
                 <p className="cart-item-price">
-                  {currency.symbol}
-                  {item.price.toFixed(2)}
+                  {currency.symbol}{item.price.toFixed(2)}
                 </p>
 
                 {item.attributes && (
                   <div className="cart-item-attributes">
                     {Object.entries(item.attributes).map(([key, value]) => {
-                      const lowerKey = key.toLowerCase();
+                      const attrKebab = key.toLowerCase().replace(/\s+/g, "-");
                       return (
-                        <div key={key} className="cart-attribute">
+                        <div
+                          key={key}
+                          className="cart-attribute"
+                          data-testid={`cart-item-attribute-${attrKebab}`}
+                        >
                           <span className="attribute-label">{key}:</span>
-                          {lowerKey === "color" ? (
-                            <span
-                              className="color-swatch"
-                              style={{ backgroundColor: value }}
-                            />
-                          ) : (
-                            <span className="attribute-value">{value}</span>
-                          )}
+                          <span
+                            className="attribute-value"
+                            data-testid={`cart-item-attribute-${attrKebab}-${attrKebab}-selected`}
+                          >
+                            {value}
+                          </span>
                         </div>
                       );
                     })}
@@ -92,15 +123,19 @@ const CartOverlay: React.FC<CartOverlayProps> = ({ toggleCart }) => {
               <div className="quantity-controls">
                 <button
                   className="quantity-btn"
+                  data-testid="cart-item-amount-increase"
                   onClick={() =>
                     updateQuantity(item.id, item.attributes, item.quantity + 1)
                   }
                 >
                   +
                 </button>
-                <span className="quantity">{item.quantity}</span>
+                <span className="quantity" data-testid="cart-item-amount">
+                  {item.quantity}
+                </span>
                 <button
                   className="quantity-btn"
+                  data-testid="cart-item-amount-decrease"
                   onClick={() =>
                     item.quantity > 1
                       ? updateQuantity(item.id, item.attributes, item.quantity - 1)
@@ -115,11 +150,14 @@ const CartOverlay: React.FC<CartOverlayProps> = ({ toggleCart }) => {
         </div>
 
         <div className="cart-footer">
-          <p className="cart-total">
-            <strong>Total:</strong> {currency.symbol}
-            {total.toFixed(2)}
+          <p className="cart-total" data-testid="cart-total">
+            <strong>Total:</strong> {currency.symbol}{total.toFixed(2)}
           </p>
-          <button className="place-order" disabled={cartItems.length === 0}>
+          <button
+            className="place-order"
+            disabled={cartItems.length === 0}
+            onClick={handlePlaceOrder}
+          >
             PLACE ORDER
           </button>
         </div>
