@@ -1,101 +1,101 @@
-/* ✅ Основной контейнер */
+/* Отступ сверху, чтобы не прилипать к фиксированной шапке */
 .product-page {
+  margin-top: 80px; /* Подберите значение под высоту вашей шапки */
   display: grid;
-  grid-template-columns: auto minmax(350px, 400px); /* Гибкая сетка */
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
   max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
-  box-sizing: border-box;
-  gap: 3rem; /* Отступ между колонками */
-  font-family: 'Raleway', sans-serif;
-  font-size: 16px;
-  line-height: 1.5;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 2rem 0;
+  align-items: start;
 }
 
-/* ✅ Левая колонка */
+/* Левая колонка: миниатюры + основное изображение */
 .left-column {
   display: flex;
-  align-items: center;
-  justify-content: center;
   gap: 1rem;
 }
 
-/* ✅ Миниатюры */
+/* Миниатюры */
 .thumbnails {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  margin-right: 1rem;
 }
 
 .thumbnail {
-  width: 100px;  /* Увеличил */
-  height: 100px;
+  width: 80px;
+  height: 80px;
   object-fit: cover;
-  border: 2px solid transparent;
   cursor: pointer;
-  border-radius: 6px; /* Добавил закругление */
-  transition: transform 0.2s ease, border 0.2s ease;
-}
-
-.thumbnail:hover {
-  transform: scale(1.05);
+  border: 2px solid transparent;
 }
 
 .thumbnail.selected {
-  border: 2px solid #5ECE7B;
+  border-color: #5ece7b;
 }
 
-/* ✅ Основное изображение */
+/* Основное изображение + стрелки */
 .main-image {
-  position: relative;
+  position: relative; /* для позиционирования стрелок */
+  width: 100%;
 }
 
 .main-image img {
-  max-width: 500px; /* Сделал поменьше */
   width: 100%;
-  height: auto;
+  max-height: 600px;
   object-fit: contain;
-  border-radius: 8px;
 }
 
-/* ✅ Кнопки стрелок */
-.arrow-btn {
+/* Стрелки "вперёд/назад" */
+.arrow-button {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(0, 0, 0, 0.3);
-  color: #fff;
-  border: none;
-  font-size: 2rem;
+  background: #fff;
+  color: #333;
+  border: 1px solid #ccc;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
   cursor: pointer;
-  padding: 0.5rem 1rem;
-  z-index: 2;
-  border-radius: 5px;
+  opacity: 0.8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: bold;
+  transition: background 0.2s;
 }
 
-.arrow-left {
-  left: 10px;
-}
-.arrow-right {
-  right: 10px;
+.arrow-button:hover {
+  background: #f0f0f0;
 }
 
-/* ✅ Правая колонка */
+.left-arrow {
+  left: 8px;
+}
+
+.right-arrow {
+  right: 8px;
+}
+
+/* Правая колонка */
 .right-column {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
 }
 
-/* ✅ Название */
 .product-name {
-  font-size: 2rem;
-  font-weight: bold;
+  font-size: 30px;
+  font-weight: 600;
   margin-bottom: 1rem;
+  color: #1d1f22;
 }
 
-/* ✅ Атрибуты */
+/* Атрибуты */
 .product-attributes {
   margin-bottom: 2rem;
 }
@@ -105,8 +105,8 @@
 }
 
 .attribute-title {
-  font-size: 1rem;
-  font-weight: bold;
+  font-size: 18px;
+  font-weight: 600;
   margin-bottom: 0.5rem;
   text-transform: uppercase;
 }
@@ -116,65 +116,58 @@
   gap: 0.5rem;
 }
 
-/* ✅ Кнопки атрибутов */
+/* Кнопки атрибутов */
 .attribute-btn {
   min-width: 45px;
   min-height: 45px;
-  border: 1px solid #333;
+  border: 1px solid #1d1f22;
   background: #fff;
   cursor: pointer;
-  transition: background 0.2s ease, border 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
+  font-size: 16px;
+  transition: 0.2s;
 }
 
 .attribute-btn.selected {
-  background: #333;
+  background: #1d1f22;
   color: #fff;
-  border-color: #333;
+  border-color: #1d1f22;
 }
 
-/* ✅ Цветные атрибуты */
 .color-btn {
   width: 45px;
   height: 45px;
-  border-radius: 4px;
   border: 2px solid transparent;
 }
 
 .color-btn.selected {
-  border: 2px solid #5ECE7B;
+  border-color: #5ece7b;
 }
 
-/* ✅ Блок цены */
+/* Цена */
 .price-block {
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
 }
 
 .product-price {
-  font-size: 1.4rem;
-  font-weight: bold;
-  color: #2e8b57;
+  font-size: 24px;
+  font-weight: 700;
+  color: #1d1f22;
 }
 
-/* ✅ Кнопка "ADD TO CART" */
+/* Кнопка ADD TO CART */
 .add-to-cart-btn {
-  background: #5ECE7B;
+  background: #5ece7b;
   color: #fff;
-  font-weight: bold;
-  padding: 1.2rem 2.5rem;
+  width: 292px;
+  height: 52px;
+  font-weight: 600;
+  padding: 1rem 2rem; /* Можно убрать, если нужна ровно 292x52 */
   border: none;
   cursor: pointer;
   font-size: 16px;
   text-transform: uppercase;
-  border-radius: 5px;
-  transition: background-color 0.2s ease;
-}
-
-.add-to-cart-btn:hover {
-  background: #4fb66b;
+  border-radius: 4px;
+  margin-bottom: 2rem;
 }
 
 .add-to-cart-btn:disabled {
@@ -182,20 +175,20 @@
   cursor: not-allowed;
 }
 
-/* ✅ Описание */
+/* Описание */
 .product-description {
-  line-height: 1.5;
   color: #444;
-  max-width: 400px;
-  font-size: 16px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-wrap: break-word;
 }
 
-/* ✅ Адаптивность для мобильных */
+/* Адаптив (для мобильных) */
 @media (max-width: 768px) {
   .product-page {
+    margin-top: 60px; /* Можно уменьшить под мобильную версию */
     grid-template-columns: 1fr;
     gap: 2rem;
-    padding: 1rem;
   }
 
   .left-column {
@@ -203,31 +196,13 @@
     align-items: center;
   }
 
-  .thumbnails {
-    flex-direction: row;
-    justify-content: center;
-    gap: 0.5rem;
-  }
-
-  .thumbnail {
-    width: 60px;
-    height: 60px;
-  }
-
   .main-image img {
-    max-width: 90%;
+    max-height: 400px;
   }
 
-  .right-column {
-    align-items: center;
-    text-align: center;
-  }
-
-  .attribute-items {
-    justify-content: center;
-  }
-
-  .add-to-cart-btn {
-    width: 100%;
+  .arrow-button {
+    width: 30px;
+    height: 30px;
+    font-size: 16px;
   }
 }

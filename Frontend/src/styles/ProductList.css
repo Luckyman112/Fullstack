@@ -1,41 +1,24 @@
-/* ✅ Сетка товаров */
 .product-list {
   width: 100%;
-  max-width: 1200px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 130px;
 }
 
 .category-title {
-  font-size: 28px;
-  font-weight: bold;
-  margin-bottom: 20px;
+  font-size: 42px;
+  font-weight: 400;
+  margin-bottom: 2rem;
   text-transform: uppercase;
+  color: #1d1f22;
   text-align: left;
 }
 
-/* ✅ Грид товаров */
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
-  justify-content: center;
-  animation: fadeIn 0.5s ease-in-out;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
 }
 
-/* ✅ Анимация появления */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* ✅ Стили сообщений */
 .loading-message,
 .error-message,
 .no-products {

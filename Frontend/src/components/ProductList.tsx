@@ -60,7 +60,7 @@ interface ProductsData {
 }
 
 interface ProductListProps {
-  category: string;
+  category: string; 
 }
 
 const ProductList: React.FC<ProductListProps> = ({ category }) => {
@@ -70,19 +70,22 @@ const ProductList: React.FC<ProductListProps> = ({ category }) => {
   if (error) return <p className="error-message">Error: {error.message}</p>;
   if (!data || !data.products) return <p className="no-products">No products found.</p>;
 
+  // Фильтруем товары по категории
   // Фильтруем по категории
-  let filteredProducts = data.products;
-  if (category?.toLowerCase() !== "all") {
-    filteredProducts = data.products.filter(
-      (product) => product.category?.toLowerCase() === category.toLowerCase()
-    );
-  }
+let filteredProducts = data.products;
+if (category?.toLowerCase() !== "all") {
+  filteredProducts = data.products.filter(
+    (product) => product.category?.toLowerCase() === category.toLowerCase()
+  );
+}
+
 
   return (
     <div className="product-list">
-      {/* Название категории */}
-      <h1 className="category-title">{category.toUpperCase()}</h1>
-      
+      <h1 className="category-title" data-testid="category-title">
+        {category.toUpperCase()}
+      </h1>
+
       {filteredProducts.length === 0 ? (
         <p className="no-products">No products in this category.</p>
       ) : (

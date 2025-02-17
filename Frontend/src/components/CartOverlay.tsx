@@ -1,6 +1,6 @@
-import React, { useContext } from "react";
-import "../styles/CartOverlay.css";
+import React, { useContext, useEffect, useRef } from "react";
 import { CartContext } from "../context/CartContext";
+import "../styles/CartOverlay.css";
 
 interface CartOverlayProps {
   toggleCart: () => void;
@@ -10,85 +10,123 @@ const CartOverlay: React.FC<CartOverlayProps> = ({ toggleCart }) => {
   const cartContext = useContext(CartContext);
   if (!cartContext) return null;
 
-  const { cartItems, updateQuantity, removeItem, currency } = cartContext;
+  const { cartItems, updateQuantity, removeItem, currency, isCartOpen } = cartContext;
+  const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  const total = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+  // Ссылка на блок корзины для определения клика "вне корзины"
+  const cartRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isCartOpen) return;
+
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      // Если клик произошёл по элементу с data-cart-icon, ничего не делаем
+      if (target.closest('[data-cart-icon]')) {
+        return;
+      }
+      // Если клик произошёл вне области корзины, закрываем её
+      if (cartRef.current && !cartRef.current.contains(target)) {
+        toggleCart();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isCartOpen, toggleCart]);
 
   return (
-    <div className="cart-overlay-container" onClick={toggleCart}>
-      <div className="cart-overlay" onClick={(e) => e.stopPropagation()}>
+    <>
+      {/* Фон-затемнения с анимацией */}
+      <div
+        className={`cart-backdrop ${isCartOpen ? "open" : ""}`}
+        onClick={toggleCart}
+      />
+
+      {/* Мини-корзина с анимацией */}
+      <div className={`cart-mini ${isCartOpen ? "open" : ""}`} ref={cartRef}>
         <h2 className="cart-title">
-          <strong>My Bag</strong>, {cartItems.length} {cartItems.length === 1 ? "item" : "items"}
+          <strong>My Bag</strong>, {cartItems.length}{" "}
+          {cartItems.length === 1 ? "item" : "items"}
         </h2>
 
         <div className="cart-items">
           {cartItems.map((item) => (
-            <div className="cart-item" key={`${item.id}-${JSON.stringify(item.attributes)}`}>
-              {/* Фото товара справа */}
+            <div
+              className="cart-item"
+              key={`${item.id}-${JSON.stringify(item.attributes)}`}
+            >
               <div className="cart-item-image">
                 <img src={item.image} alt={item.name} />
               </div>
 
-              {/* Детали товара слева */}
               <div className="cart-item-details">
                 <h3 className="cart-item-name">{item.name}</h3>
-                <p className="cart-item-price">{currency.symbol}{item.price.toFixed(2)}</p>
+                <p className="cart-item-price">
+                  {currency.symbol}
+                  {item.price.toFixed(2)}
+                </p>
 
-                {/* Атрибуты */}
                 {item.attributes && (
                   <div className="cart-item-attributes">
-                    {Object.entries(item.attributes).map(([key, value]) => (
-                      <div key={key} className="cart-attribute">
-                        <span className="attribute-label">{key}:</span>
-                        <div className="attribute-options">
-                          {item.availableAttributes?.[key]?.map((option: string) => (
-                            <button
-                              key={option}
-                              className={`attribute-option ${value === option ? "selected" : ""}`}
-                              onClick={() =>
-                                updateQuantity(item.id, { ...item.attributes, [key]: option }, item.quantity)
-                              }
-                            >
-                              {key === "Color" ? (
-                                <span className="color-swatch" style={{ backgroundColor: option }}></span>
-                              ) : (
-                                option
-                              )}
-                            </button>
-                          ))}
+                    {Object.entries(item.attributes).map(([key, value]) => {
+                      const lowerKey = key.toLowerCase();
+                      return (
+                        <div key={key} className="cart-attribute">
+                          <span className="attribute-label">{key}:</span>
+                          {lowerKey === "color" ? (
+                            <span
+                              className="color-swatch"
+                              style={{ backgroundColor: value }}
+                            />
+                          ) : (
+                            <span className="attribute-value">{value}</span>
+                          )}
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
-
-                {/* Количество (вертикально) */}
-                <div className="quantity-controls">
-                  <button className="quantity-btn" onClick={() => updateQuantity(item.id, item.attributes, item.quantity + 1)}>+</button>
-                  <span className="quantity">{item.quantity}</span>
-                  <button className="quantity-btn" onClick={() => item.quantity > 1
-                    ? updateQuantity(item.id, item.attributes, item.quantity - 1)
-                    : removeItem(item.id, item.attributes)}>−</button>
-                </div>
               </div>
 
-              {/* Кнопка удаления */}
-              <button className="remove-item" onClick={() => removeItem(item.id, item.attributes)}>✖</button>
+              <div className="quantity-controls">
+                <button
+                  className="quantity-btn"
+                  onClick={() =>
+                    updateQuantity(item.id, item.attributes, item.quantity + 1)
+                  }
+                >
+                  +
+                </button>
+                <span className="quantity">{item.quantity}</span>
+                <button
+                  className="quantity-btn"
+                  onClick={() =>
+                    item.quantity > 1
+                      ? updateQuantity(item.id, item.attributes, item.quantity - 1)
+                      : removeItem(item.id, item.attributes)
+                  }
+                >
+                  &ndash;
+                </button>
+              </div>
             </div>
           ))}
         </div>
 
-        {/* Нижняя часть корзины */}
         <div className="cart-footer">
-          <p className="cart-total"><strong>Total:</strong> {currency.symbol}{total.toFixed(2)}</p>
-          <button className="place-order" disabled={cartItems.length === 0}>PLACE ORDER</button>
+          <p className="cart-total">
+            <strong>Total:</strong> {currency.symbol}
+            {total.toFixed(2)}
+          </p>
+          <button className="place-order" disabled={cartItems.length === 0}>
+            PLACE ORDER
+          </button>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
 export default CartOverlay;
+
