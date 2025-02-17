@@ -11,13 +11,11 @@ const Header: React.FC<HeaderProps> = ({ toggleCart }) => {
   const cartContext = useContext(CartContext);
   if (!cartContext) return null;
 
-  // Подсчитываем товары
   const cartCount = cartContext.cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
     <header className="top-header">
       <div className="header-container">
-        {/* Категории */}
         <nav className="nav-links">
           <NavLink to="/ALL" className="nav-link">
             {({ isActive }) => (
@@ -42,7 +40,6 @@ const Header: React.FC<HeaderProps> = ({ toggleCart }) => {
           </NavLink>
         </nav>
 
-        {/* Корзина */}
         <div
           className="cart-area"
           onClick={toggleCart}

@@ -36,12 +36,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const mainPrice = prices[0]?.amount || 0;
   const currencySymbol = prices[0]?.currency?.symbol || "$";
 
-  // Формируем data-testid в kebab-case
   const testId = `product-${name.toLowerCase().replace(/\s+/g, "-")}`;
 
-  // Функция Quick Shop: добавляет товар с дефолтными опциями (первый вариант каждого атрибута)
   const handleQuickShop = (e: React.MouseEvent) => {
-    // Предотвращаем срабатывание перехода по ссылке
     e.preventDefault();
     if (!inStock || !cartContext) return;
     const defaultAttributes = attributes

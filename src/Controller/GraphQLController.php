@@ -2,12 +2,12 @@
 
 namespace App\Controller;
 
+use GraphQL\Type\Definition\InputObjectType; 
 use App\Database;
 use App\Entities\Category;
 use App\Entities\Order;
 use App\Factories\ProductFactory;
 use App\Models\Product\AbstractProduct;
-
 use GraphQL\GraphQL as GraphQLBase;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
@@ -16,16 +16,27 @@ use GraphQL\Type\SchemaConfig;
 use PDO;
 use Throwable;
 
+/**
+ * 
+ *
+ * 
+ *
+ * @package App\Controller
+ */
 class GraphQLController
 {
+    /**
+     * 
+     *
+     * @return void
+     */
     public static function handle(): void
     {
         try {
-            // Если требуется поддержка мутаций, можно добавить:
-            // ->setMutation(self::buildMutationType())
             $schema = new Schema(
                 (new SchemaConfig())
                     ->setQuery(self::buildQueryType())
+                    ->setMutation(self::buildMutationType()) 
             );
 
             $input = json_decode(file_get_contents('php://input'), true);
@@ -47,6 +58,11 @@ class GraphQLController
         echo json_encode($output);
     }
 
+    /**
+     * 
+     *
+     * @return ObjectType
+     */
     private static function buildQueryType(): ObjectType
     {
         $currencyType = new ObjectType([
@@ -81,7 +97,20 @@ class GraphQLController
             ],
         ]);
 
-        // Тип Product (абстрактную модель будем резолвить вручную)
+        $categoryType = new ObjectType([
+            'name' => 'Category',
+            'fields' => [
+                'name' => Type::string(),
+            ],
+            'resolveField' => function ($rootValue, $args, $context, $info) {
+                $fieldName = $info->fieldName;
+                return match ($fieldName) {
+                    'name' => $rootValue->getName(),
+                    default => null,
+                };
+            }
+        ]);
+
         $productType = new ObjectType([
             'name' => 'Product',
             'fields' => [
@@ -128,7 +157,6 @@ class GraphQLController
             }
         ]);
 
-        // Тип Order
         $orderType = new ObjectType([
             'name' => 'Order',
             'fields' => [
@@ -141,10 +169,7 @@ class GraphQLController
             'name' => 'Query',
             'fields' => [
                 'categories' => [
-                    'type' => Type::listOf(new ObjectType([
-                        'name' => 'Category',
-                        'fields' => ['name' => Type::string()],
-                    ])),
+                    'type' => Type::listOf($categoryType),
                     'resolve' => fn() => self::fetchAllCategories(),
                 ],
                 'products' => [
@@ -160,9 +185,14 @@ class GraphQLController
         ]);
     }
 
+    /**
+     * 
+     *
+     * @return ObjectType
+     */
     private static function buildMutationType(): ObjectType
     {
-        $orderItemInput = new ObjectType([
+        $orderItemInput = new InputObjectType([
             'name' => 'OrderItemInput',
             'fields' => [
                 'productId' => Type::nonNull(Type::string()),
@@ -206,10 +236,11 @@ class GraphQLController
         ]);
     }
 
-    // ----------------------------------
-    // Методы для работы с БД
-    // ----------------------------------
-
+    /**
+     * 
+     *
+     * @return array
+     */
     private static function fetchAllCategories(): array
     {
         $pdo = Database::getConnection();
@@ -226,6 +257,11 @@ class GraphQLController
         return $result;
     }
 
+    /**
+     * 
+     *
+     * @return array
+     */
     private static function fetchAllProducts(): array
     {
         $pdo = Database::getConnection();
@@ -239,6 +275,12 @@ class GraphQLController
         return $list;
     }
 
+    /**
+     * 
+     *
+     * @param string $id
+     * @return AbstractProduct|null
+     */
     private static function fetchProductById(string $id): ?AbstractProduct
     {
         $pdo = Database::getConnection();
@@ -252,6 +294,11 @@ class GraphQLController
         return ProductFactory::create($row);
     }
 
+    /**
+     * 
+     *
+     * @return array
+     */
     private static function fetchAllOrders(): array
     {
         $pdo = Database::getConnection();
@@ -265,6 +312,12 @@ class GraphQLController
         return $orders;
     }
 
+    /**
+     * 
+     *
+     * @param array $args
+     * @return bool
+     */
     private static function addProduct(array $args): bool
     {
         $pdo = Database::getConnection();
@@ -287,6 +340,12 @@ class GraphQLController
         ]);
     }
 
+    /**
+     * 
+     *
+     * @param array $ids
+     * @return bool
+     */
     private static function deleteProducts(array $ids): bool
     {
         if (empty($ids)) {
@@ -298,12 +357,20 @@ class GraphQLController
         return $stmt->execute($ids);
     }
 
+    /**
+     * 
+     * 
+     *
+     * @param array $items
+     * @return int
+     * @throws \Exception
+     */
     private static function createOrder(array $items): int
     {
         $pdo = Database::getConnection();
         $pdo->beginTransaction();
         try {
-            $pdo->exec("INSERT INTO orders () VALUES ()");
+            $pdo->exec("INSERT INTO orders (created_at) VALUES (NOW())");
             $orderId = (int)$pdo->lastInsertId();
 
             $stmt = $pdo->prepare("INSERT INTO order_items (order_id, product_id, quantity)

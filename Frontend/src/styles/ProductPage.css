@@ -1,6 +1,5 @@
-/* Отступ сверху, чтобы не прилипать к фиксированной шапке */
 .product-page {
-  margin-top: 80px; /* Подберите значение под высоту вашей шапки */
+  margin-top: 80px;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 3rem;
@@ -11,13 +10,11 @@
   align-items: start;
 }
 
-/* Левая колонка: миниатюры + основное изображение */
 .left-column {
   display: flex;
   gap: 1rem;
 }
 
-/* Миниатюры */
 .thumbnails {
   display: flex;
   flex-direction: column;
@@ -36,9 +33,8 @@
   border-color: #5ece7b;
 }
 
-/* Основное изображение + стрелки */
 .main-image {
-  position: relative; /* для позиционирования стрелок */
+  position: relative;
   width: 100%;
   height: 600px;
   overflow: hidden;
@@ -50,7 +46,6 @@
   object-fit: contain;
 }
 
-/* Стрелки "вперёд/назад" */
 .arrow-button {
   position: absolute;
   top: 50%;
@@ -83,7 +78,6 @@
   right: 8px;
 }
 
-/* Правая колонка */
 .right-column {
   display: flex;
   flex-direction: column;
@@ -97,7 +91,6 @@
   color: #1d1f22;
 }
 
-/* Атрибуты */
 .product-attributes {
   margin-bottom: 2rem;
 }
@@ -118,7 +111,6 @@
   gap: 0.5rem;
 }
 
-/* Кнопки атрибутов */
 .attribute-btn {
   min-width: 45px;
   min-height: 45px;
@@ -145,7 +137,6 @@
   border-color: #5ece7b;
 }
 
-/* Цена */
 .price-block {
   margin-bottom: 2rem;
 }
@@ -156,14 +147,13 @@
   color: #1d1f22;
 }
 
-/* Кнопка ADD TO CART */
 .add-to-cart-btn {
   background: #5ece7b;
   color: #fff;
   width: 292px;
   height: 52px;
   font-weight: 600;
-  padding: 1rem 2rem; /* Можно убрать, если нужна ровно 292x52 */
+  padding: 1rem 2rem;
   border: none;
   cursor: pointer;
   font-size: 16px;
@@ -177,7 +167,6 @@
   cursor: not-allowed;
 }
 
-/* Описание */
 .product-description {
   color: #444;
   line-height: 1.5;
@@ -185,10 +174,9 @@
   word-wrap: break-word;
 }
 
-/* Адаптив (для мобильных) */
 @media (max-width: 768px) {
   .product-page {
-    margin-top: 60px; /* Можно уменьшить под мобильную версию */
+    margin-top: 60px;
     grid-template-columns: 1fr;
     gap: 2rem;
   }

@@ -8,14 +8,11 @@ class DatabaseInitializer {
 
     public function run() {
         try {
-            // Подключение к MySQL
             $pdo = new PDO("mysql:host={$this->host}", $this->username, $this->password);
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-            // Чтение SQL-скрипта
             $sql = file_get_contents(__DIR__ . '/sql/database.sql');
 
-            // Выполнение SQL-скрипта
             $pdo->exec($sql);
             echo "База данных успешно создана и инициализирована!";
         } catch (PDOException $e) {
@@ -24,6 +21,5 @@ class DatabaseInitializer {
     }
 }
 
-// Запуск инициализации
 $initializer = new DatabaseInitializer();
 $initializer->run();

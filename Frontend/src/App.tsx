@@ -5,7 +5,7 @@ import ProductList from "./components/ProductList";
 import ProductPage from "./components/ProductPage";
 import CartOverlay from "./components/CartOverlay";
 import { CartContext } from "./context/CartContext";
-import "./styles/App.css"; // Здесь .app-container и .cart-open стили
+import "./styles/App.css";
 
 const NotFound: React.FC = () => (
   <div className="not-found">
@@ -33,7 +33,6 @@ const AppContent: React.FC = () => {
 
   return (
     <div className={`app-container ${isCartOpen ? "cart-open" : ""}`}>
-      {/* Шапка с иконкой корзины */}
       <Header toggleCart={toggleCart} />
 
       <Routes>
@@ -45,7 +44,6 @@ const AppContent: React.FC = () => {
         <Route path="*" element={<NotFound />} />
       </Routes>
 
-      {/* Рендерим CartOverlay ВСЕГДА, оно скрыто, если isCartOpen === false */}
       <CartOverlay toggleCart={toggleCart} />
     </div>
   );

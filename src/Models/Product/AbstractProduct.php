@@ -2,16 +2,6 @@
 
 namespace App\Models\Product;
 
-/**
- * Абстрактная модель продукта.
- * Поля:
- *  id, name, in_stock, category, brand,
- *  description, gallery(json), attributes(json),
- *  price, currency_label, currency_symbol
- *
- * Метод getTypeName() будет переопределён в подклассах
- * (ClothesProduct, TechProduct).
- */
 abstract class AbstractProduct
 {
     protected string $id;
@@ -35,7 +25,6 @@ abstract class AbstractProduct
         $this->brand = $data['brand'] ?? null;
         $this->description = $data['description'] ?? '';
 
-        // JSON поля
         $this->gallery = \json_decode($data['gallery'] ?? '[]', true) ?? [];
         $this->attributes = \json_decode($data['attributes'] ?? '[]', true) ?? [];
 
@@ -44,7 +33,6 @@ abstract class AbstractProduct
         $this->currencySymbol = $data['currency_symbol'] ?? null;
     }
 
-    // Геттеры
     public function getId(): string { return $this->id; }
     public function getName(): string { return $this->name; }
     public function isInStock(): bool { return $this->inStock; }
@@ -58,7 +46,6 @@ abstract class AbstractProduct
     public function getCurrencyLabel(): ?string { return $this->currencyLabel; }
     public function getCurrencySymbol(): ?string { return $this->currencySymbol; }
 
-    // Полиморфный метод - каждый subclass может возвращать свой typeName
     abstract public function getTypeName(): string;
 }
 

@@ -22,7 +22,6 @@ const CartOverlay: React.FC<CartOverlayProps> = ({ toggleCart }) => {
   const { cartItems, updateQuantity, removeItem, currency, isCartOpen, clearCart } = cartContext;
   const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  // Ссылка на блок корзины для определения клика "вне корзины"
   const cartRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -30,11 +29,9 @@ const CartOverlay: React.FC<CartOverlayProps> = ({ toggleCart }) => {
 
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      // Если клик произошёл по элементу с data-cart-icon, ничего не делаем
       if (target.closest('[data-cart-icon]')) {
         return;
       }
-      // Если клик произошёл вне области корзины, закрываем её
       if (cartRef.current && !cartRef.current.contains(target)) {
         toggleCart();
       }
@@ -48,7 +45,6 @@ const CartOverlay: React.FC<CartOverlayProps> = ({ toggleCart }) => {
   const handlePlaceOrder = async () => {
     if (cartItems.length === 0) return;
     
-    // Формируем массив заказанных товаров: { productId, quantity }
     const items = cartItems.map(item => ({
       productId: item.id,
       quantity: item.quantity
@@ -57,24 +53,20 @@ const CartOverlay: React.FC<CartOverlayProps> = ({ toggleCart }) => {
     try {
       const result = await createOrder({ variables: { items } });
       console.log("Order created with ID:", result.data.createOrder);
-      // Очистка корзины и закрытие оверлея
       clearCart();
       toggleCart();
     } catch (error) {
       console.error("Order creation failed:", error);
-      // Здесь можно добавить уведомление об ошибке
     }
   };
 
   return (
     <>
-      {/* Фон-затемнения с анимацией */}
       <div
         className={`cart-backdrop ${isCartOpen ? "open" : ""}`}
         onClick={toggleCart}
       />
 
-      {/* Мини-корзина с анимацией */}
       <div className={`cart-mini ${isCartOpen ? "open" : ""}`} ref={cartRef}>
         <h2 className="cart-title">
           <strong>My Bag</strong>, {cartItems.length} {cartItems.length === 1 ? "item" : "items"}
@@ -100,7 +92,6 @@ const CartOverlay: React.FC<CartOverlayProps> = ({ toggleCart }) => {
                   <div className="cart-item-attributes">
                     {Object.entries(item.attributes).map(([key, value]) => {
                       const attrKebab = key.toLowerCase().replace(/\s+/g, "-");
-                      // Если это атрибут "color", рендерим цветной квадратик
                       if (attrKebab === "color") {
                         return (
                           <div

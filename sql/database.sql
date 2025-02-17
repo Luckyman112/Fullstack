@@ -1,24 +1,21 @@
--- Удаляем и пересоздаем базу
 DROP DATABASE IF EXISTS scandiweb;
 CREATE DATABASE scandiweb;
 USE scandiweb;
 
--- Создаем таблицу products со всеми нужными полями
 CREATE TABLE products (
   id VARCHAR(255) PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
   in_stock BOOLEAN NOT NULL,
   category VARCHAR(50),
   brand VARCHAR(255),
-  description TEXT,      -- Тут храним полный HTML
-  gallery JSON,          -- Тут массив ссылок
-  attributes JSON,       -- Тут массив объектов с атрибутами
+  description TEXT,      
+  gallery JSON,          
+  attributes JSON,       
   price DECIMAL(10,2),
   currency_label VARCHAR(10),
   currency_symbol VARCHAR(5)
 );
 
--- 1) Nike Air Huarache Le
 INSERT INTO products (
   id, name, in_stock, category, brand, description,
   gallery, attributes, price, currency_label, currency_symbol
@@ -55,7 +52,6 @@ VALUES (
   '$'
 );
 
--- 2) Jacket
 INSERT INTO products (
   id, name, in_stock, category, brand, description,
   gallery, attributes, price, currency_label, currency_symbol
@@ -94,7 +90,6 @@ VALUES (
   '$'
 );
 
--- 3) PlayStation 5
 INSERT INTO products (
   id, name, in_stock, category, brand, description,
   gallery, attributes, price, currency_label, currency_symbol
@@ -141,7 +136,6 @@ VALUES (
   '$'
 );
 
--- 4) Xbox Series S 512GB (полный HTML описание с <div>, <ul>, <li> и т.д.)
 INSERT INTO products (
   id, name, in_stock, category, brand, description,
   gallery, attributes, price, currency_label, currency_symbol
@@ -188,7 +182,6 @@ VALUES (
   '$'
 );
 
--- 5) iMac 2021
 INSERT INTO products (
   id, name, in_stock, category, brand, description,
   gallery, attributes, price, currency_label, currency_symbol
@@ -237,7 +230,6 @@ VALUES (
   '$'
 );
 
--- 6) iPhone 12 Pro
 INSERT INTO products (
   id, name, in_stock, category, brand, description,
   gallery, attributes, price, currency_label, currency_symbol
@@ -279,8 +271,19 @@ VALUES (
   'USD',
   '$'
 );
+CREATE TABLE IF NOT EXISTS orders (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
--- 7) AirPods Pro (с полным HTML)
+CREATE TABLE IF NOT EXISTS order_items (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  order_id INT NOT NULL,
+  product_id VARCHAR(255) NOT NULL,
+  quantity INT NOT NULL,
+  FOREIGN KEY (order_id) REFERENCES orders(id)
+);
+
 INSERT INTO products (
   id, name, in_stock, category, brand, description,
   gallery, attributes, price, currency_label, currency_symbol
@@ -301,7 +304,6 @@ VALUES (
   '$'
 );
 
--- 8) AirTag
 INSERT INTO products (
   id, name, in_stock, category, brand, description,
   gallery, attributes, price, currency_label, currency_symbol

@@ -13,7 +13,7 @@ class Database
         if (!self::$conn) {
             $dsn = 'mysql:host=localhost;dbname=scandiweb;charset=utf8';
             $user = 'root';
-            $pass = 'Kolobok20041'; // поменяйте под ваши креды
+            $pass = 'Kolobok20041'; 
 
             try {
                 self::$conn = new PDO($dsn, $user, $pass, [
