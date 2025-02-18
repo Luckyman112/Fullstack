@@ -59,52 +59,9 @@ Below you will find details about the project structure, how to set it up, and h
 ---
 
 
-
 *(File/folder names may differ depending on your setup.)*
 
 ---
-
-## Installation and Setup
-
-1. Clone the Repository
-git clone https://github.com/Luckyman112/Fullstack
-
-
-2. Back-end Setup
-PHP & MySQL: Ensure you have PHP (7.4+ or 8.1+) and MySQL (5.6+) installed.
-
-Install Composer dependencies:
-composer install
-Configure Database:
-In Database.php (or equivalent), update the MySQL credentials if needed.
-Run the SQL script (or a DatabaseInitializer file) to create the scandiweb database, tables, and insert test data:
-
-php initialize_database.php
-or manually import database.sql.
-Run the server:
-
-You can use php -S localhost:8000 in the public/ directory (where index.php is) or configure Apache/Nginx to serve it at http://localhost:8000/.
-The GraphQL endpoint will be http://localhost:8000/graphql.
-
-3. Front-end Setup
-Go to the Frontend folder:
-
-cd Frontend
-Install dependencies:
-
-npm install
-Start the dev server:
-
-npm run dev
-Check your ApolloClient URI in index.tsx (or equivalent):
-ts
-
-const client = new ApolloClient({
-  uri: "http://localhost:8000/graphql",
-  cache: new InMemoryCache(),
-});
-Open http://localhost:5173/ in your browser (or whichever port Vite uses).
-****
 
 
 Usage
