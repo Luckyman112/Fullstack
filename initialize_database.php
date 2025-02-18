@@ -1,10 +1,10 @@
 <?php
 
 class DatabaseInitializer {
-    private $host = 'localhost';
-    private $db_name = 'scandiweb';
-    private $username = 'root';
-    private $password = 'Kolobok20041';
+    private $host = 'fdb1028.awardspace.net';
+    private $db_name = '4591947_scandiweb';
+    private $username = '4591947_scandiweb';
+    private $password = 'Kolobok2004';
 
     public function run() {
         try {

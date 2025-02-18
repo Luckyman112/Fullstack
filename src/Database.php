@@ -11,9 +11,9 @@ class Database
     public static function getConnection(): PDO
     {
         if (!self::$conn) {
-            $dsn = 'mysql:host=localhost;dbname=scandiweb;charset=utf8';
-            $user = 'root';
-            $pass = 'Kolobok20041'; 
+            $dsn = 'mysql:host=fdb1028.awardspace.net;dbname=4591947_scandiweb;charset=utf8';
+            $user = '4591947_scandiweb';
+            $pass = 'Kolobok2004'; 
 
             try {
                 self::$conn = new PDO($dsn, $user, $pass, [

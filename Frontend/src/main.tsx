@@ -6,7 +6,7 @@ import { CartProvider } from "./context/CartContext";
 import "./styles/App.css"; 
 
 const client = new ApolloClient({
-  uri: "http://localhost:8000/graphql", 
+  uri: "https://4591947.atwebpages.com/public/index.php", 
   cache: new InMemoryCache(),
 });
 
